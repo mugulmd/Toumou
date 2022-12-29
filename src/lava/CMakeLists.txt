@@ -1,0 +1,44 @@
+add_library(
+lava_engine
+SHARED
+    ${LAVA_INCLUDE_DIR}/lava/camera.hpp
+    camera.cpp
+    ${LAVA_INCLUDE_DIR}/lava/color.hpp
+    color.cpp
+    ${LAVA_INCLUDE_DIR}/lava/geometry.hpp
+    geometry.cpp
+    ${LAVA_INCLUDE_DIR}/lava/image.hpp
+    image.cpp
+    ${LAVA_INCLUDE_DIR}/lava/io.hpp
+    io.cpp
+    ${LAVA_INCLUDE_DIR}/lava/light.hpp
+    light.cpp
+    ${LAVA_INCLUDE_DIR}/lava/material.hpp
+    material.cpp
+    ${LAVA_INCLUDE_DIR}/lava/rendering.hpp
+    rendering.cpp
+    ${LAVA_INCLUDE_DIR}/lava/scene.hpp
+    scene.cpp
+    ${LAVA_INCLUDE_DIR}/lava/surface.hpp
+    surface.cpp
+)
+
+target_include_directories(
+lava_engine 
+PUBLIC 
+    ${LAVA_INCLUDE_DIR}
+)
+
+target_link_libraries(
+lava_engine 
+PRIVATE
+    spdlog::spdlog 
+    OpenEXR::OpenEXR
+)
+
+install(
+TARGETS
+    lava_engine
+DESTINATION
+    Lava-${CMAKE_PROJECT_VERSION}
+)
