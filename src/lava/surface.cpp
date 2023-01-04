@@ -1,6 +1,7 @@
 #include <lava/surface.hpp>
 
 #include <cmath>
+#include <algorithm>
 
 
 namespace lava {
@@ -68,6 +69,75 @@ std::shared_ptr<Plane> make_plane(const Vec3& origin, const Vec3& normal)
 	surface->origin = origin;
 	surface->normal = normal;
 	return surface;
+}
+
+void Metaball::add_sphere(std::shared_ptr<Sphere> sphere)
+{
+	m_spheres.push_back(sphere);
+}
+
+bool Metaball::hit(const Ray& ray, float& t, Vec3& n) const
+{
+	bool found_root = root_finder.find_first_root(ray,
+		[this](const Vec3& pos) -> float {
+			return value_at(pos) - 1.f;
+		},
+		[this](const Ray& ray, float t) -> float {
+			return ray_derivative_at(ray, t);
+		},
+		t);
+
+	if (!found_root) {
+		return false;
+	}
+
+	n = normal_at(ray.at(t));
+
+	return true;
+}
+
+float Metaball::value_at(const Vec3& pos) const
+{
+	float value = 0.f;
+	for (auto sphere : m_spheres) {
+		float dist2 = (pos - sphere->center).norm2();
+		dist2 = std::max(dist2, 1e-3f);
+		value += (sphere->radius * sphere->radius) / dist2;
+	}
+	return value;
+}
+
+float Metaball::ray_derivative_at(const Ray& ray, float t) const
+{
+	float derivative = 0.f;
+	for (auto sphere : m_spheres) {
+		Vec3 pos = ray.at(t);
+		Vec3 delta = pos - sphere->center;
+		float dist2 = delta.norm2();
+		dist2 = std::max(dist2, 1e-3f);
+		derivative += (sphere->radius * sphere->radius) * (t + dot(ray.origin - sphere->center, ray.dir)) / (dist2 * dist2);
+	}
+	derivative *= -2.f;
+	return derivative;
+}
+
+Vec3 Metaball::normal_at(const Vec3& pos) const
+{
+	Vec3 normal;
+	for (auto sphere : m_spheres) {
+		Vec3 delta = pos - sphere->center;
+		float dist2 = delta.norm2();
+		dist2 = std::max(dist2, 1e-3f);
+		normal += delta * (sphere->radius * sphere->radius) / (dist2 * dist2);
+	}
+	normal.normalize();
+	return normal;
+}
+
+std::shared_ptr<Metaball> make_metaball()
+{
+	auto metaball = std::make_shared<Metaball>();
+	return metaball;
 }
 
 }

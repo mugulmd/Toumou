@@ -1,31 +1,24 @@
 # Roadmap
 
-## Where we are now
+## version 0.1.0
 
-- Code structure and build system
-  - *Lava engine* (shared library)
-  - Python bindings
-  - Example application
-- Documentation
-  - C++ API documentation
-  - Python API tutorial
-- Ray tracing
-  - Direct lighting (no bounce)
-  - Basic surfaces: sphere, plane
-  - Basic light sources: point, directional
-  - Basic shading: Phong reflection model
-- Image IO
-  - Saving render output to EXR
+- Python API
+  - [ ] shapes: plane, sphere, capsule
+  - [ ] combine shapes using implicit surface description (e.g metaballs)
+  - [ ] lights: point light, directional, area light
+  - [ ] materials: BRDF, procedural texturing
+  - [ ] camera
+  - [ ] organization in scene
+  - [ ] ray tracing with global illumination
+  - [ ] denoising
+  - [ ] write render layers (image, normal, depth, object ID) on disk in EXR
+- [ ] Python packaging
+- [ ] Documentation and tutorials
+- [ ] Unit tests
 
-## What's next
+## later
 
-- Save object ID, depth and normal layers
-- Python packaging (wheels)
-- Unit tests
-- Advanced light source models
-- Metaballs
-- Path tracing (global illumination)
-- Denoising
-- Procedural texturing
+- Acceleration structures
 - Hardware acceleration
-- Linux support
+- Linux/MacOS support
+- Volume rendering

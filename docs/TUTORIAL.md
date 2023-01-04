@@ -22,40 +22,68 @@ os.add_dll_directory('/path/to/Imath/DLLs')
 os.add_dll_directory('/path/to/zlib/DLLs')
 ```
 
-## Rendering a sphere
+## Simple sphere
 
-Here is a little sample code to create and render a sphere with `lava_python`:
+Here is how you can create and render a sphere with `lava_python`:
 ```python
-import lava_python as lava
+cam = lava.make_camera(location=lava.Vec3(0, 0, 5))
+sun = lava.make_sun_light(direction=lava.Vec3(1, 1, 1).normalized())
+
+sphere = lava.make_sphere()
+sphere.material.base_color = lava.Color(1, 0, 1)
 
 scene = lava.Scene()
-
-sphere = lava.make_sphere(center=lava.Vec3(0, 0, 0), radius=1)
-purple = lava.Color(1, 0, 1)
-sphere.material = purple
+scene.set_camera(cam)
+scene.add_light(sun)
 scene.add_surface(sphere)
 
-sun_dir = lava.Vec3(1, 1, 1)
-sun_dir.normalize()
-sun = lava.make_sun_light(direction=sun_dir, brightness=1, color=lava.Color(1, 1, 1))
-scene.add_light(sun)
+params = lava.RenderParams(4)
+layers = lava.RenderLayers(600, 450)
 
-cam = lava.make_camera(location=lava.Vec3(0, 0, 5), 
-					   forward=lava.Vec3(0, 0, -1), up=lava.Vec3(0, 1, 0), 
-					   sensor_width=36, field_of_view=90, 
-					   z_near=0.1, z_far=100)
-scene.set_camera(cam)
-
-params = lava.RenderParams(16)
-layers = lava.RenderLayers(1200, 900)
-
-def my_callback(progress):
+def print_progress(progress):
 	print(f'progress: {progress}')
 
-lava.render(scene, params, layers, my_callback)
+lava.render(scene, params, layers, print_progress)
 
-lava.write_EXR(layers, '/path/to/image.exr')
+lava.write_EXR(layers, 'sphere.exr')
 ```
 
 If everything goes well, you should get something like this:
+
 ![purple_sphere](assets/purple_sphere.jpg)
+
+## Metaball animation
+
+In this example, we create a metaball with two spheres and animate the positions of the spheres:
+```python
+cam = lava.make_camera(location=lava.Vec3(0, 0, 8))
+sun = lava.make_sun_light(direction=lava.Vec3(1, 1, 1).normalized())
+
+sphere_left = lava.make_sphere()
+sphere_right = lava.make_sphere(radius=.8)
+metaball = lava.make_metaball()
+metaball.add_sphere(sphere_left)
+metaball.add_sphere(sphere_right)
+metaball.material.base_color = lava.Color(1, 0, 1)
+
+scene = lava.Scene()
+scene.set_camera(cam)
+scene.add_light(sun)
+scene.add_surface(metaball)
+
+params = lava.RenderParams(4)
+layers = lava.RenderLayers(640, 360)
+
+def print_progress(progress):
+	print(f'progress: {progress}')
+
+n_frames = 10
+for frame in range(n_frames):
+	print(f'Frame {frame}')
+	x = 2 * frame / n_frames
+	sphere_left.center.x = -x
+	sphere_right.center.x = x
+	lava.render(scene, params, layers, print_progress)
+	lava.write_EXR(layers, f'metaball/frame_{frame:04}.exr')
+```
+

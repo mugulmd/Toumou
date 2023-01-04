@@ -36,7 +36,8 @@ This will create a `Lava.sln` file, which you can open in Visual Studio to build
 
 If you built the example application, you can use it to test your installation: in a terminal, go to your installation directory and run `lava_example /path/to/image.exr` (replace `/path/to/image.exr` with the actual filepath you want to save the rendered image to).
 
-Once this is done, open the saved image with the EXR viewer of your choice. You should get something like this: 
+Once this is done, open the saved image with the EXR viewer of your choice. You should get something like this:
+
 ![lava_example](docs/assets/lava_example.jpg)
 
 > Note: to run the example application you might need to add the path to the OpenEXR, IMath and zlib DLLs in your `PATH` environment variable.

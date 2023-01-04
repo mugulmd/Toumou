@@ -12,11 +12,11 @@ Ray tracing engine for rendering implicit surfaces in Python.
 
 ## Install
 
-See (INSTALL.md) to build the project.
+See [INSTALL](INSTALL.md) to build the project.
 
 ## Tutorial
 
-To learn how to use the `lava_python` to create and render your own 3D scenes, see [this tutorial](docs/TUTORIAL.md).
+To learn how to use `lava_python` to create and render your own 3D scenes, see [this tutorial](docs/TUTORIAL.md).
 
 ## Documentation
 
@@ -35,4 +35,4 @@ In the meantime, feel free to take a look at the [roadmap](ROADMAP.md) and to cr
 
 ## License
 
-This project is released under the MIT license, see (LICENSE.md).
+This project is released under the MIT license, see [LICENSE](LICENSE.md).
