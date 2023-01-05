@@ -165,6 +165,16 @@ PYBIND11_MODULE(lava_python, m)
 		py::arg("origin") = Vec3(0, 0, 0),
 		py::arg("normal") = Vec3(0, 1, 0));
 
+	py::class_<Tube, std::shared_ptr<Tube>, Surface>(m, "Tube")
+		.def_readwrite("origin", &Tube::origin)
+		.def_readwrite("direction", &Tube::direction)
+		.def_readwrite("radius", &Tube::radius);
+
+	m.def("make_tube", &make_tube, 
+		py::arg("origin") = Vec3(0, 0, 0), 
+		py::arg("direction") = Vec3(0, 1, 0), 
+		py::arg("radius") = .5f);
+
 	py::class_<Metaball, std::shared_ptr<Metaball>, Surface>(m, "Metaball")
 		.def("add_sphere", &Metaball::add_sphere)
 		.def_readwrite("root_finder", &Metaball::root_finder);

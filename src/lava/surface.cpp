@@ -71,6 +71,41 @@ std::shared_ptr<Plane> make_plane(const Vec3& origin, const Vec3& normal)
 	return surface;
 }
 
+bool Tube::hit(const Ray& ray, float& t, Vec3& n) const
+{
+	Vec3 v1 = ray.dir - direction * dot(ray.dir, direction);
+	Vec3 v2 = ray.origin - origin - direction * dot(ray.origin - origin, direction);
+	float a = v1.norm2();
+	float b = 2.f * dot(v1, v2);
+	float c = v2.norm2() - (radius * radius);
+	float delta = b * b - 4.f * a * c;
+	if (delta < 0) {
+		return false;
+	}
+
+	float t1 = (-b - std::sqrt(delta)) / (2.f * a);
+	float t2 = (-b + std::sqrt(delta)) / (2.f * a);
+	t = std::min(t1, t2);
+	if (t < 0) {
+		return false;
+	}
+
+	Vec3 p = ray.at(t);
+	Vec3 q = origin + direction * dot(p - origin, direction);
+	n = (p - q).normalized();
+
+	return true;
+}
+
+std::shared_ptr<Tube> make_tube(const Vec3& origin, const Vec3& direction, float radius)
+{
+	auto surface = std::make_shared<Tube>();
+	surface->origin = origin;
+	surface->direction = direction;
+	surface->radius = radius;
+	return surface;
+}
+
 void Metaball::add_sphere(std::shared_ptr<Sphere> sphere)
 {
 	m_spheres.push_back(sphere);

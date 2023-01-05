@@ -94,6 +94,34 @@ public:
 std::shared_ptr<Plane> make_plane(const Vec3& origin, const Vec3& normal);
 
 /**
+ * @brief A class to define and manipulate a tube surface model.
+ */
+class Tube : public Surface {
+public:
+
+	/// Tube origin.
+	Vec3 origin;
+
+	/// Tube direction (normalized).
+	Vec3 direction;
+
+	/// Tube radius.
+	float radius;
+
+	bool hit(const Ray& ray, float& t, Vec3& n) const override;
+
+};
+
+/**
+ * @brief Constructs and initializes a tube surface.
+ * @param[in] origin The tube origin.
+ * @param[in] direction The tube direction.
+ * @param[in] radius The tube radius.
+ * @return A shared pointer to a tube surface model initialized with the given parameters.
+ */
+std::shared_ptr<Tube> make_tube(const Vec3& origin, const Vec3& direction, float radius);
+
+/**
  * @brief A class to create a metaball from several spheres.
  * @see Sphere
  */
