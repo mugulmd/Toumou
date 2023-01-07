@@ -149,7 +149,10 @@ PYBIND11_MODULE(lava_python, m)
 	py::class_<Surface, std::shared_ptr<Surface>>(m, "Surface")
 		.def_readwrite("material", &Surface::material);
 
-	py::class_<Sphere, std::shared_ptr<Sphere>, Surface>(m, "Sphere")
+	py::class_<ImplicitSurface, std::shared_ptr<ImplicitSurface>, Surface>(m, "ImplicitSurface")
+		.def_readwrite("root_finder", &ImplicitSurface::root_finder);
+
+	py::class_<Sphere, std::shared_ptr<Sphere>, ImplicitSurface>(m, "Sphere")
 		.def_readwrite("center", &Sphere::center)
 		.def_readwrite("radius", &Sphere::radius);
 
@@ -157,7 +160,7 @@ PYBIND11_MODULE(lava_python, m)
 		py::arg("center") = Vec3(0, 0, 0),
 		py::arg("radius") = 1.f);
 
-	py::class_<Plane, std::shared_ptr<Plane>, Surface>(m, "Plane")
+	py::class_<Plane, std::shared_ptr<Plane>, ImplicitSurface>(m, "Plane")
 		.def_readwrite("origin", &Plane::origin)
 		.def_readwrite("normal", &Plane::normal);
 
@@ -165,7 +168,7 @@ PYBIND11_MODULE(lava_python, m)
 		py::arg("origin") = Vec3(0, 0, 0),
 		py::arg("normal") = Vec3(0, 1, 0));
 
-	py::class_<Tube, std::shared_ptr<Tube>, Surface>(m, "Tube")
+	py::class_<Tube, std::shared_ptr<Tube>, ImplicitSurface>(m, "Tube")
 		.def_readwrite("origin", &Tube::origin)
 		.def_readwrite("direction", &Tube::direction)
 		.def_readwrite("radius", &Tube::radius);
@@ -175,9 +178,8 @@ PYBIND11_MODULE(lava_python, m)
 		py::arg("direction") = Vec3(0, 1, 0), 
 		py::arg("radius") = .5f);
 
-	py::class_<Metaball, std::shared_ptr<Metaball>, Surface>(m, "Metaball")
-		.def("add_sphere", &Metaball::add_sphere)
-		.def_readwrite("root_finder", &Metaball::root_finder);
+	py::class_<Fusion, std::shared_ptr<Fusion>, ImplicitSurface>(m, "Fusion")
+		.def("add", &Fusion::add);
 
-	m.def("make_metaball", &make_metaball);
+	m.def("make_fusion", &make_fusion);
 }

@@ -18,6 +18,42 @@ unsigned int Surface::uid() const
 	return m_uid;
 }
 
+float ImplicitSurface::ray_derivative(const Ray& ray, float t) const
+{
+	return (field(ray.at(t + 1e-5f)) - field(ray.at(t - 1e-5f))) * .5f * 1e5f;
+}
+
+Vec3 ImplicitSurface::normal(const Vec3& pos) const
+{
+	Vec3 dx(1e-5f, 0, 0);
+	Vec3 dy(0, 1e-5f, 0);
+	Vec3 dz(0, 0, 1e-5f);
+	float grad_x = (field(pos + dx) - field(pos - dx)) * .5f * 1e5f;
+	float grad_y = (field(pos + dy) - field(pos - dy)) * .5f * 1e5f;
+	float grad_z = (field(pos + dz) - field(pos - dz)) * .5f * 1e5f;
+	return Vec3(-grad_x, -grad_y, -grad_z).normalized();
+}
+
+bool ImplicitSurface::hit(const Ray& ray, float& t, Vec3& n) const
+{
+	bool found_root = root_finder.find_first_root(ray,
+		[this](const Vec3& pos) -> float {
+			return field(pos) - 1.f;
+		},
+		[this](const Ray& ray, float t) -> float {
+			return ray_derivative(ray, t);
+		},
+		t);
+
+	if (!found_root) {
+		return false;
+	}
+
+	n = normal(ray.at(t));
+
+	return true;
+}
+
 bool Sphere::hit(const Ray& ray, float& t, Vec3& n) const
 {
 	float b = 2 * dot(ray.dir, ray.origin - center);
@@ -35,6 +71,13 @@ bool Sphere::hit(const Ray& ray, float& t, Vec3& n) const
 
 	n = (ray.at(t) - center).normalized();
 	return true;
+}
+
+float Sphere::field(const Vec3& pos) const
+{
+	float dist2 = (pos - center).norm2();
+	dist2 = std::max(dist2, 1e-5f);
+	return (radius * radius) / dist2;
 }
 
 std::shared_ptr<Sphere> make_sphere(const Vec3& center, float radius)
@@ -61,6 +104,12 @@ bool Plane::hit(const Ray& ray, float& t, Vec3& n) const
 
 	n = normal;
 	return true;
+}
+
+float Plane::field(const Vec3& pos) const
+{
+	float signed_dist = dot(pos - origin, normal);
+	return std::exp(-signed_dist);
 }
 
 std::shared_ptr<Plane> make_plane(const Vec3& origin, const Vec3& normal)
@@ -97,6 +146,15 @@ bool Tube::hit(const Ray& ray, float& t, Vec3& n) const
 	return true;
 }
 
+float Tube::field(const Vec3& pos) const
+{
+	Vec3 delta = pos - origin;
+	float lambda = dot(delta, direction);
+	float dist2 = delta.norm2() - lambda * lambda;
+	dist2 = std::max(dist2, 1e-5f);
+	return (radius * radius) / dist2;
+}
+
 std::shared_ptr<Tube> make_tube(const Vec3& origin, const Vec3& direction, float radius)
 {
 	auto surface = std::make_shared<Tube>();
@@ -106,73 +164,24 @@ std::shared_ptr<Tube> make_tube(const Vec3& origin, const Vec3& direction, float
 	return surface;
 }
 
-void Metaball::add_sphere(std::shared_ptr<Sphere> sphere)
+void Fusion::add(std::shared_ptr<ImplicitSurface> surface, float coef)
 {
-	m_spheres.push_back(sphere);
+	m_surfaces[surface] = coef;
 }
 
-bool Metaball::hit(const Ray& ray, float& t, Vec3& n) const
-{
-	bool found_root = root_finder.find_first_root(ray,
-		[this](const Vec3& pos) -> float {
-			return value_at(pos) - 1.f;
-		},
-		[this](const Ray& ray, float t) -> float {
-			return ray_derivative_at(ray, t);
-		},
-		t);
-
-	if (!found_root) {
-		return false;
-	}
-
-	n = normal_at(ray.at(t));
-
-	return true;
-}
-
-float Metaball::value_at(const Vec3& pos) const
+float Fusion::field(const Vec3& pos) const
 {
 	float value = 0.f;
-	for (auto sphere : m_spheres) {
-		float dist2 = (pos - sphere->center).norm2();
-		dist2 = std::max(dist2, 1e-3f);
-		value += (sphere->radius * sphere->radius) / dist2;
+	for (const auto& [surface, coef] : m_surfaces) {
+		value += surface->field(pos) * coef;
 	}
 	return value;
 }
 
-float Metaball::ray_derivative_at(const Ray& ray, float t) const
+std::shared_ptr<Fusion> make_fusion()
 {
-	float derivative = 0.f;
-	for (auto sphere : m_spheres) {
-		Vec3 pos = ray.at(t);
-		Vec3 delta = pos - sphere->center;
-		float dist2 = delta.norm2();
-		dist2 = std::max(dist2, 1e-3f);
-		derivative += (sphere->radius * sphere->radius) * (t + dot(ray.origin - sphere->center, ray.dir)) / (dist2 * dist2);
-	}
-	derivative *= -2.f;
-	return derivative;
-}
-
-Vec3 Metaball::normal_at(const Vec3& pos) const
-{
-	Vec3 normal;
-	for (auto sphere : m_spheres) {
-		Vec3 delta = pos - sphere->center;
-		float dist2 = delta.norm2();
-		dist2 = std::max(dist2, 1e-3f);
-		normal += delta * (sphere->radius * sphere->radius) / (dist2 * dist2);
-	}
-	normal.normalize();
-	return normal;
-}
-
-std::shared_ptr<Metaball> make_metaball()
-{
-	auto metaball = std::make_shared<Metaball>();
-	return metaball;
+	auto surface = std::make_shared<Fusion>();
+	return surface;
 }
 
 }

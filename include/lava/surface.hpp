@@ -5,7 +5,7 @@
 #include <lava/root_finding.hpp>
 
 #include <memory>
-#include <vector>
+#include <unordered_map>
 
 
 namespace lava {
@@ -46,9 +46,44 @@ public:
 };
 
 /**
+ * @brief An abstract class to define an implicit surface given its corresponding field function.
+ */
+class ImplicitSurface : public Surface {
+public:
+
+	/// Provide access to the root estimation algorithm parameters.
+	RootFinder root_finder;
+
+	virtual bool hit(const Ray& ray, float& t, Vec3& n) const override;
+
+	/**
+	 * @brief Field function that defines the surface as the solution to { field = 1 }.
+	 * @param[in] pos Position where the field is evaluated.
+	 * @return The field value at that position.
+	 */
+	virtual float field(const Vec3& pos) const = 0;
+
+	/**
+	 * @brief The field derivative along a ray.
+	 * @param[in] ray Input ray.
+	 * @param[in] t The parameters giving the position along the ray for evaluating the derivative.
+	 * @return The derivative along the ray at the given position.
+	 */
+	virtual float ray_derivative(const Ray& ray, float t) const;
+
+	/**
+	 * @brief The surface normal, i.e. the normalized opposite of the field gradient.
+	 * @param[in] pos Position where the normal is evaluated.
+	 * @return The surface normal at that position.
+	 */
+	virtual Vec3 normal(const Vec3& pos) const;
+
+};
+
+/**
  * @brief A class to define and manipulate a sphere surface model.
  */
-class Sphere : public Surface {
+class Sphere : public ImplicitSurface {
 public:
 
 	/// Sphere center.
@@ -58,6 +93,8 @@ public:
 	float radius;
 
 	bool hit(const Ray& ray, float& t, Vec3& n) const override;
+
+	float field(const Vec3& pos) const override;
 
 };
 
@@ -72,7 +109,7 @@ std::shared_ptr<Sphere> make_sphere(const Vec3& center, float radius);
 /**
  * @brief A class to define and manipulate a plane surface model.
  */
-class Plane : public Surface {
+class Plane : public ImplicitSurface {
 public:
 
 	/// Plane origin.
@@ -82,6 +119,8 @@ public:
 	Vec3 normal;
 
 	bool hit(const Ray& ray, float& t, Vec3& n) const override;
+
+	float field(const Vec3& pos) const override;
 
 };
 
@@ -96,7 +135,7 @@ std::shared_ptr<Plane> make_plane(const Vec3& origin, const Vec3& normal);
 /**
  * @brief A class to define and manipulate a tube surface model.
  */
-class Tube : public Surface {
+class Tube : public ImplicitSurface {
 public:
 
 	/// Tube origin.
@@ -110,6 +149,8 @@ public:
 
 	bool hit(const Ray& ray, float& t, Vec3& n) const override;
 
+	float field(const Vec3& pos) const override;
+
 };
 
 /**
@@ -122,56 +163,31 @@ public:
 std::shared_ptr<Tube> make_tube(const Vec3& origin, const Vec3& direction, float radius);
 
 /**
- * @brief A class to create a metaball from several spheres.
- * @see Sphere
+ * @brief A class to merge several implicit surfaces together.
  */
-class Metaball : public Surface {
+class Fusion : public ImplicitSurface {
 public:
 
 	/**
-	 * @brief Add a sphere to this metaball.
-	 * @param[in] sphere A shared pointer to a sphere.
+	 * @brief Add an implicit surface.
+	 * @param[in] surface A shared pointer to an implicit surface.
+	 * @param[in] coef The surface ponderation in the fusion.
 	 */
-	void add_sphere(std::shared_ptr<Sphere> sphere);
+	void add(std::shared_ptr<ImplicitSurface> surface, float coef);
 
-	/// Provide access to the root finding algorithm parameters.
-	RootFinder root_finder;
-
-	bool hit(const Ray& ray, float& t, Vec3& n) const override;
+	float field(const Vec3& pos) const override;
 
 private:
 
-	/// Metaball spheres.
-	std::vector<std::shared_ptr<Sphere>> m_spheres;
-
-	/**
-	 * @brief Sample the metaball field.
-	 * @param[in] pos The sampling position.
-	 * @return The field value at the given position.
-	 */
-	float value_at(const Vec3& pos) const;
-
-	/**
-	 * @brief Compute the derivative of the metaball field restricted to a ray.
-	 * @param[in] ray The ray on which to compute the derivative.
-	 * @param[in] t A position along the ray.
-	 * @return The metaball field derivative at the given position along the ray.
-	 */
-	float ray_derivative_at(const Ray& ray, float t) const;
-
-	/**
-	 * @brief Compute the metaball's normal vector.
-	 * @param[in] pos The position where to compute the normal.
-	 * @return The normal at the given position, i.e the normalized opposite of the gradient.
-	 */
-	Vec3 normal_at(const Vec3& pos) const;
+	/// Surfaces in the fusion with their ponderation.
+	std::unordered_map<std::shared_ptr<ImplicitSurface>, float> m_surfaces;
 
 };
 
 /**
- * @brief Constructs an empty metaball.
- * @return A shared pointer to an empty metaball.
+ * @brief Constructs an empty fusion surface.
+ * @return A shared pointer to an empty fusion surface.
  */
-std::shared_ptr<Metaball> make_metaball();
+std::shared_ptr<Fusion> make_fusion();
 
 }
