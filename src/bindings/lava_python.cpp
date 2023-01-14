@@ -105,24 +105,13 @@ PYBIND11_MODULE(lava_python, m)
 
 	py::class_<Material>(m, "Material")
 		.def_readwrite("base_color", &Material::base_color)
-		.def_readwrite("k_ambient", &Material::k_ambient)
-		.def_readwrite("k_diffuse", &Material::k_diffuse)
-		.def_readwrite("k_specular", &Material::k_specular)
-		.def_readwrite("roughness", &Material::roughness);
+		.def_readwrite("albedo", &Material::albedo);
 
 	// Rendering
 
-	py::class_<RenderParams>(m, "RenderParams")
-		.def(py::init<int>());
-
-	py::class_<RenderLayers>(m, "RenderLayers")
-		.def(py::init<int, int>());
-
-	m.def("render", &render, 
-		py::arg("scene"), 
-		py::arg("params"), 
-		py::arg("layers"), 
-		py::arg("progress_callback"));
+	py::class_<RayTracer>(m, "RayTracer")
+		.def(py::init<int, int, int, int, int>())
+		.def("render", &RayTracer::render);
 
 	// Root finding
 

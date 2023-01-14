@@ -14,10 +14,10 @@ using namespace IMF;
 
 namespace lava {
 
-void write_EXR(const RenderLayers& layers, const std::string& path)
+void write_EXR(const RayTracer& rt, const std::string& path)
 {
-	const int width = layers.image.width();
-	const int height = layers.image.height();
+	const int width = rt.image.width();
+	const int height = rt.image.height();
 
 	Header header(width, height);
 	header.channels().insert("R", Channel(IMF::FLOAT));
@@ -26,7 +26,7 @@ void write_EXR(const RenderLayers& layers, const std::string& path)
 
 	FrameBuffer buf;
 
-	const Color* pixels_color = layers.image.data();
+	const Color* pixels_color = rt.image.data();
 	buf.insert(
 		"R",
 		Slice(

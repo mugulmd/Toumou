@@ -5,6 +5,7 @@ SHARED
     camera.cpp
     ${LAVA_INCLUDE_DIR}/lava/color.hpp
     color.cpp
+    ${LAVA_INCLUDE_DIR}/lava/constants.hpp
     ${LAVA_INCLUDE_DIR}/lava/geometry.hpp
     geometry.cpp
     ${LAVA_INCLUDE_DIR}/lava/image.hpp

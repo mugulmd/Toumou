@@ -2,6 +2,7 @@
 
 #include <lava/camera.hpp>
 #include <lava/color.hpp>
+#include <lava/constants.hpp>
 #include <lava/geometry.hpp>
 #include <lava/image.hpp>
 #include <lava/io.hpp>

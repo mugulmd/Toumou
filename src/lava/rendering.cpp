@@ -1,22 +1,24 @@
 #include <lava/rendering.hpp>
+#include <lava/constants.hpp>
 
 #include <spdlog/spdlog.h>
 
 #include <chrono>
-#include <random>
 
 
 namespace lava {
 
-RenderParams::RenderParams(int sampling) : 
-	pixel_sampling(sampling)
-{}
+RayTracer::RayTracer(int w, int h, int sampling, int bounce, int split) : 
+	image(w, h),
+	pixel_sampling(sampling), max_bounce(bounce), rays_per_bounce(split),
+	m_dis(0.f, 1.f)
+{
+	// Initialize pseudo-random number generator
+	std::random_device rd;
+	m_gen = std::mt19937(rd());
+}
 
-RenderLayers::RenderLayers(int w, int h) : 
-	image(w, h)
-{}
-
-Ray cast(std::shared_ptr<Camera> camera, float x, float y, float aspect_ratio)
+Ray RayTracer::cast(std::shared_ptr<Camera> camera, float x, float y, float aspect_ratio) const
 {
 	Vec3 pixel_pos = camera->location
 		+ camera->forward * camera->sensor_width / std::tan(.5f * camera->field_of_view)
@@ -25,8 +27,16 @@ Ray cast(std::shared_ptr<Camera> camera, float x, float y, float aspect_ratio)
 	return trace(camera->location, pixel_pos);
 }
 
-std::shared_ptr<Surface> hit(const Ray& ray, const Scene& scene,
-							 float& t, Vec3& normal)
+Ray RayTracer::cast(const Vec3& pos, const Vec3& normal, float theta, float phi) const
+{
+	Vec3 tz = (std::abs(normal.x) > std::abs(normal.y)) ? Vec3(normal.z, 0, -normal.x) : Vec3(0, -normal.z, normal.y);
+	tz.normalize();
+	Vec3 tx = cross(normal, tz);
+	Vec3 dir = tx * std::sin(theta) * std::cos(phi) + normal * std::cos(theta) + tz * std::sin(theta) * std::sin(phi);
+	return Ray(pos, dir);
+}
+
+std::shared_ptr<Surface> RayTracer::hit(const Ray& ray, const Scene& scene, float& t, Vec3& normal) const
 {
 	std::shared_ptr<Surface> surface = nullptr;
 
@@ -34,6 +44,10 @@ std::shared_ptr<Surface> hit(const Ray& ray, const Scene& scene,
 		float t_local = 0.f;
 		Vec3 n_local;
 		if (!s->hit(ray, t_local, n_local)) {
+			continue;
+		}
+
+		if (t_local < eps_ray_sep) {
 			continue;
 		}
 		
@@ -47,96 +61,150 @@ std::shared_ptr<Surface> hit(const Ray& ray, const Scene& scene,
 	return surface;
 }
 
-void render(const Scene& scene,
-			const RenderParams& params, 
-			RenderLayers& layers, 
-			std::function<void(float)> progress_callback)
+Color RayTracer::direct_lighting(std::shared_ptr<Surface> surface, const Scene& scene, const Vec3& pos, const Vec3& normal) const
 {
+	Color c_out;
+
+	for (auto light : scene.lights()) {
+		Vec3 dir_light;
+		float dist_light = 0.f;
+		float intensity = 0.f;
+		light->sample(pos, dir_light, dist_light, intensity);
+
+		Ray r_light(pos, dir_light);
+		float t_obstruct = 0.f;
+		Vec3 n_obstruct;
+		auto s_obstruct = hit(r_light, scene, t_obstruct, n_obstruct);
+		if (s_obstruct && t_obstruct < dist_light) {
+			continue;
+		}
+
+		float diffuse = std::max(0.f, dot(normal, dir_light)) * (surface->material).albedo / 3.14f;
+
+		c_out = (surface->material).base_color * (diffuse * intensity);
+	}
+
+	return c_out;
+}
+
+Color RayTracer::indirect_lighting(std::shared_ptr<Surface> surface, const Scene& scene, const Vec3& pos, const Vec3& normal, int n_bounce) const
+{
+	Color c_out;
+
+	if (n_bounce == 0) {
+		return c_out;
+	}
+
+	for (int i = 0; i < rays_per_bounce; i++) {
+		// Generate ray in random direction
+		float r1 = m_dis(m_gen);
+		float theta = std::acos(1 - r1);
+		float r2 = m_dis(m_gen);
+		float phi = r2 * 6.18f;
+		Ray ray_bounce = cast(pos, normal, theta, phi);
+
+		// Find first surface hit
+		float t_hit = 0.f;
+		Vec3 n_hit;
+		auto surf_hit = hit(ray_bounce, scene, t_hit, n_hit);
+		if (!surf_hit) {
+			continue;
+		}
+
+		Vec3 p_hit = ray_bounce.at(t_hit);
+
+		// Direct lighting
+		Color c_direct = direct_lighting(surf_hit, scene, p_hit, n_hit);
+
+		// Recursive indirect lighting
+		Color c_indirect = indirect_lighting(surf_hit, scene, p_hit, n_hit, n_bounce - 1);
+
+		// Add contribution
+		float diffuse = std::max(0.f, dot(normal, ray_bounce.dir)) * (surface->material).albedo / 3.14f;
+		c_out += (c_direct + c_indirect) * diffuse / static_cast<float>(rays_per_bounce);
+	}
+
+	return c_out;
+}
+
+void RayTracer::render(const Scene& scene, std::function<void(int)> progress_callback)
+{
+	// Start timer
 	spdlog::info("start rendering");
 	auto time_start = std::chrono::steady_clock::now();
 
-	const int width = layers.image.width();
-	const int height = layers.image.height();
+	// Dimensions
+	const int width = image.width();
+	const int height = image.height();
 	spdlog::info("dimensions: {}x{}", width, height);
 
+	// Aspect ratio
 	const float f_width = static_cast<float>(width);
 	const float f_height = static_cast<float>(height);
 	const float aspect_ratio = f_height / f_width;
 
-	int progress_counter = 0;
+	// First progress callback
+	int progress = 0;
 	progress_callback(0);
 
-	std::random_device rd;
-	std::mt19937 gen(rd());
-	std::uniform_real_distribution<float> dis(0.f, 1.f);
-
+	// Loop over pixels
 	for (int j = 0; j < width; j++) {
 		for (int i = 0; i < height; i++) {
+			// Pixel color (to compute)
+			Color c_out;
+
+			// Pixel top-left coordinates
 			const float x = (static_cast<float>(j) / f_width) - .5f;
 			const float y = .5f - (static_cast<float>(i) / f_height);
 
-			Color c_out;
+			// Send rays randomly over the pixel's area
+			for (int k = 0; k < pixel_sampling; k++) {
 
-			for (int k = 0; k < params.pixel_sampling; k++) {
-				const float dx = dis(gen) / f_width;
-				const float dy = dis(gen) / f_height;
-
+				// Generate ray with a random offset
+				const float dx = m_dis(m_gen) / f_width;
+				const float dy = m_dis(m_gen) / f_height;
 				const Ray ray = cast(scene.camera(), x + dx, y + dy, aspect_ratio);
 
+				// Find first surface hit by ray
 				float t = 0.f;
 				Vec3 normal;
 				auto surface = hit(ray, scene, t, normal);
 				if (!surface) {
+					// No surface hit, send next ray
 					continue;
 				}
 
+				// Hit position
 				Vec3 pos = ray.at(t);
-				Vec3 dir_view = ray.dir * -1;
 
+				// Surface color at hit point (to compute)
 				Color c_sample;
 
-				for (auto light : scene.lights()) {
-					Vec3 dir_light;
-					float dist_light = 0.f;
-					float intensity = 0.f;
-					light->sample(pos, dir_light, dist_light, intensity);
+				// Direct lighting
+				c_sample += direct_lighting(surface, scene, pos, normal);
 
-					Ray r_light(pos, dir_light);
-					float t_obstruct = 0.f;
-					Vec3 n_obstruct;
-					auto s_obstruct = hit(r_light, scene, t_obstruct, n_obstruct);
-					if (s_obstruct && t_obstruct > 1e-3 && t_obstruct < dist_light) {
-						continue;
-					}
+				// Indirect lighting
+				c_sample += indirect_lighting(surface, scene, pos, normal, max_bounce);
 
-					float diffuse = std::max(0.f, dot(normal, dir_light)) * (surface->material).k_diffuse / 3.14f;
-
-					Vec3 dir_reflected = normal * dot(normal, dir_light) * 2 - dir_light;
-					float alpha = 1.f / std::max((surface->material).roughness, 1e-3f);
-					float specular = std::pow(std::max(0.f, dot(dir_view, dir_reflected)), alpha) * (surface->material).k_specular;
-
-					c_sample = (surface->material).base_color * ((surface->material).k_ambient + diffuse * intensity)
-							 + light->color * specular * intensity;
-					c_sample.r = std::min(c_sample.r, 1.f);
-					c_sample.g = std::min(c_sample.g, 1.f);
-					c_sample.b = std::min(c_sample.b, 1.f);
-				}
-
-				c_out += c_sample;
+				// Add sample contribution
+				c_sample.r = std::min(c_sample.r, 1.f);
+				c_sample.g = std::min(c_sample.g, 1.f);
+				c_sample.b = std::min(c_sample.b, 1.f);
+				c_out += c_sample / static_cast<float>(pixel_sampling);
 			}
 
-			c_out /= static_cast<float>(params.pixel_sampling);
+			// Store results
+			image.set(i, j, c_out);
 
-			layers.image.set(i, j, c_out);
-
-			progress_counter++;
-			if((progress_counter * 10) % (width * height) == 0) {
-				float progress = static_cast<float>(progress_counter) / static_cast<float>(width * height);
-				progress_callback(progress);
+			// Every time progress reaches one percent more, call progress callback
+			progress++;
+			if((progress * 100) % (width * height) == 0) {
+				progress_callback((progress * 100) / (width * height));
 			}
 		}
 	}
 
+	// Stop timer and compute elapsed time
 	auto time_end = std::chrono::steady_clock::now();
 	std::chrono::duration<double> elapsed_seconds = time_end - time_start;
 	spdlog::info("rendering done in {}s", elapsed_seconds.count());
