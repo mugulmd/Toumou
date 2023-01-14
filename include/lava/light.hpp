@@ -53,13 +53,12 @@ public:
  * @param[in] color The color of the light source.
  * @return A shared pointer to a point light source model initialized with the given parameters.
  */
-std::shared_ptr<PointLight> make_point_light(const Vec3& location, 
-											 float brightness, const Color& color);
+std::shared_ptr<PointLight> make_point_light(const Vec3& location, float brightness, const Color& color);
 
 /**
  * @brief A class to define and manipulate a directional light source model.
  */
-class SunLight : public Light {
+class DirectionalLight : public Light {
 public:
 	
 	/// Direction of the light source.
@@ -76,7 +75,6 @@ public:
  * @param[in] color The color of the light source.
  * @return A shared pointer to a directional light source model initialized with the given parameters.
  */
-std::shared_ptr<SunLight> make_sun_light(const Vec3& direction, 
-										 float brightness, const Color& color);
+std::shared_ptr<DirectionalLight> make_directional_light(const Vec3& direction, float brightness, const Color& color);
 
 }

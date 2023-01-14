@@ -33,7 +33,7 @@ int main(int argc, char* argv[])
 							  0.1f, 100.f);
 	scene.set_camera(camera);
 
-	auto light = make_sun_light(Vec3(1, 1, 1).normalized(), 1.f, Color(1, 1, 1));
+	auto light = make_directional_light(Vec3(1, 1, 1).normalized(), 1.f, Color(1, 1, 1));
 	scene.add_light(light);
 
 	auto sphere_left = make_sphere(Vec3(-3, 0, 0), 1.f);

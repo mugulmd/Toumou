@@ -93,10 +93,10 @@ PYBIND11_MODULE(lava_python, m)
 		py::arg("brightness") = 1.f, 
 		py::arg("color") = Color(1, 1, 1));
 
-	py::class_<SunLight, std::shared_ptr<SunLight>, Light>(m, "SunLight")
-		.def_readwrite("direction", &SunLight::direction);
+	py::class_<DirectionalLight, std::shared_ptr<DirectionalLight>, Light>(m, "DirectionalLight")
+		.def_readwrite("direction", &DirectionalLight::direction);
 
-	m.def("make_sun_light", &make_sun_light, 
+	m.def("make_directional_light", &make_directional_light, 
 		py::arg("direction"), 
 		py::arg("brightness") = 1.f, 
 		py::arg("color") = Color(1, 1, 1));
