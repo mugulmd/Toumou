@@ -6,7 +6,7 @@
 namespace lava {
 
 /**
- * @brief A struct to define and manipulate the paramaters of a material (using the Phong reflection model).
+ * @brief Simple diffuse material.
  */
 struct Material {
 

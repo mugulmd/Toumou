@@ -8,10 +8,9 @@
 namespace lava {
 
 /**
- * @brief Write the given render layers on disk using the OpenEXR format.
- * @see RenderLayers
- * @param[in] layers The render layers to save.
- * @param[in] path The path indicating where to save the layers on disk (must have the .exr extension).
+ * @brief Write render passes on disk in EXR format.
+ * @param[in] rt Ray tracer with computed render passes.
+ * @param[in] path Filepath to save the render passes on disk (must have the .exr extension).
  */
 void write_EXR(const RayTracer& rt, const std::string& path);
 

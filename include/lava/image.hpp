@@ -6,8 +6,8 @@
 namespace lava {
 
 /**
- * @brief A template class to store and manipulate a 2D pixel grid.
- * @tparam T The type of the pixels.
+ * @brief 2D pixel grid.
+ * @tparam T Type of the pixels.
  */
 template<typename T>
 class Image {
@@ -15,8 +15,8 @@ public:
 
 	/**
 	 * @brief Initialize a 2D pixel grid.
-	 * @param[in] w The grid's width.
-	 * @param[in] h The grid's height.
+	 * @param[in] w Grid's width.
+	 * @param[in] h Grid's height.
 	 */
 	Image(int w, int h);
 
@@ -28,17 +28,17 @@ public:
 
 	/**
 	 * @brief Retrieve the pixel value at the given grid coordinates.
-	 * @param[in] i The pixel's row.
-	 * @param[in] j The pixel's column.
-	 * @return The pixel value at (i, j).
+	 * @param[in] i Pixel row.
+	 * @param[in] j Pixel column.
+	 * @return Pixel value at (i, j).
 	 */
 	T at(int i, int j) const;
 
 	/**
 	 * @brief Set the pixel value at the given grid coordinates.
-	 * @param[in] i The pixel's row.
-	 * @param[in] j The pixel's column.
-	 * @param[in] value The new pixel value.
+	 * @param[in] i Pixel row.
+	 * @param[in] j Pixel column.
+	 * @param[in] value New pixel value.
 	 */
 	void set(int i, int j, const T& value);
 

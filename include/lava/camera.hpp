@@ -8,8 +8,7 @@
 namespace lava {
 
 /**
- * @brief A struct to store and manipulate the parameters of a pinhole camera model.
- * @see make_camera
+ * @brief Pinhole camera model.
  */
 struct Camera {
 
@@ -31,7 +30,7 @@ struct Camera {
 };
 
 /**
- * @brief Constructs and initializes a camera.
+ * @brief Initialize a camera.
  * @param[in] location Camera position in 3D space.
  * @param[in] forward Direction in which the camera is looking (must be normalized).
  * @param[in] up Camera orientation along the viewing axis (must be normalized).

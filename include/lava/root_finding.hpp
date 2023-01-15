@@ -8,7 +8,7 @@
 namespace lava {
 
 /**
- * @brief A struct that implements a root finding algorithm for detecting the zeros of a 3D field along a ray.
+ * @brief Root estimation algorithm for detecting the zeros of a 3D field along a ray.
  * 
  * To compute the intersection between a ray and an implicit surface in the general case (when there is no close formula)
  * we use the 3D field that defines the given implicit surface and we apply the following root finding algorithm: 
@@ -34,10 +34,10 @@ struct RootFinder {
 
 	/**
 	 * @brief Find the first point along a ray at which a field evaluates to zero.
-	 * @param[in] ray The ray on which we are looking for a root.
+	 * @param[in] ray Ray on which we are looking for a root.
 	 * @param[in] field 3D field describing an implicit surface.
-	 * @param[in] ray_derivative The derivative of the field restricted to a ray.
-	 * @param[out] t_root The estimated root position along the ray.
+	 * @param[in] ray_derivative Derivative of the field restricted to a ray.
+	 * @param[out] t_root Estimated root position along the ray.
 	 * @return Whether or not a root was found.
 	 */
 	bool find_first_root(const Ray& ray,

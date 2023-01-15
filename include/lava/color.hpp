@@ -4,7 +4,7 @@
 namespace lava {
 
 /**
- * @brief A struct to define and manipulate RGB colors with float precision.
+ * @brief RGB colors with float precision.
  */
 struct Color {
 

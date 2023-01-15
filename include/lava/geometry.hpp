@@ -4,7 +4,7 @@
 namespace lava {
 
 /**
- * @brief A struct to define and manipulate 3D vectors with float precision.
+ * @brief 3D vector with float precision.
  */
 struct Vec3 {
 
@@ -68,8 +68,7 @@ float dot(const Vec3& lhs, const Vec3& rhs);
 Vec3 cross(const Vec3& lhs, const Vec3& rhs);
 
 /**
- * @brief A struct to define and manipulate a ray, i.e a half-line in 3D space.
- * @see trace
+ * @brief Half-line in 3D space.
  */
 struct Ray {
 
@@ -88,8 +87,8 @@ struct Ray {
 
 	/**
 	 * @brief Retrieve the position of a point on this ray.
-	 * @param[in] t The distance between between the ray's origin and the position to compute (must be positive).
-	 * @return The position of the queried point along the ray.
+	 * @param[in] t Distance between between the ray's origin and the position to compute (must be positive).
+	 * @return Position of the queried point along the ray.
 	 */
 	Vec3 at(float t) const;
 
@@ -97,8 +96,8 @@ struct Ray {
 
 /**
  * @brief Trace a ray going through two points in 3D space.
- * @param[in] from The starting point of the ray to trace.
- * @param[in] to The destination point which the ray must go through.
+ * @param[in] from Starting point of the ray to trace.
+ * @param[in] to Destination point which the ray must go through.
  * @return A ray starting at the first given point and passing through the second one.
  */
 Ray trace(const Vec3& from, const Vec3& to);

@@ -13,13 +13,13 @@ namespace lava {
 	pixel_sampling(sampling), max_bounce(bounce), rays_per_bounce(split),
 	m_dis(0.f, 1.f)
 {
-	// Initialize pseudo-random number generator
 	std::random_device rd;
 	m_gen = std::mt19937(rd());
 }
 
 Ray RayTracer::cast(std::shared_ptr<Camera> camera, float x, float y, float aspect_ratio) const
 {
+	// Compute pixel position in 3D space
 	Vec3 pixel_pos = camera->location
 		+ camera->forward * camera->sensor_width / std::tan(.5f * camera->field_of_view)
 		+ camera->right * x * camera->sensor_width
@@ -29,6 +29,7 @@ Ray RayTracer::cast(std::shared_ptr<Camera> camera, float x, float y, float aspe
 
 Ray RayTracer::cast(const Vec3& pos, const Vec3& normal, float theta, float phi) const
 {
+	// Local coordinate system
 	Vec3 tz = (std::abs(normal.x) > std::abs(normal.y)) ? Vec3(normal.z, 0, -normal.x) : Vec3(0, -normal.z, normal.y);
 	tz.normalize();
 	Vec3 tx = cross(normal, tz);
@@ -40,17 +41,22 @@ std::shared_ptr<Surface> RayTracer::hit(const Ray& ray, const Scene& scene, floa
 {
 	std::shared_ptr<Surface> surface = nullptr;
 
+	// Go through all surfaces
 	for (auto s : scene.surfaces()) {
+
+		// Check if ray intersects surface
 		float t_local = 0.f;
 		Vec3 n_local;
 		if (!s->hit(ray, t_local, n_local)) {
 			continue;
 		}
 
+		// Make sure intersection point is not ray origin
 		if (t_local < eps_ray_sep) {
 			continue;
 		}
 		
+		// Update closest hit
 		if (!surface || (surface && t_local < t)) {
 			surface = s;
 			t = t_local;
@@ -65,12 +71,16 @@ Color RayTracer::direct_lighting(std::shared_ptr<Surface> surface, const Scene& 
 {
 	Color c_out;
 
+	// Go through all light sources
 	for (auto light : scene.lights()) {
+
+		// Retrieve light contribution
 		Vec3 dir_light;
 		float dist_light = 0.f;
 		float intensity = 0.f;
 		light->sample(pos, dir_light, dist_light, intensity);
 
+		// Check if light source is obstructed
 		Ray r_light(pos, dir_light);
 		float t_obstruct = 0.f;
 		Vec3 n_obstruct;
@@ -79,8 +89,8 @@ Color RayTracer::direct_lighting(std::shared_ptr<Surface> surface, const Scene& 
 			continue;
 		}
 
+		// Add lighting contribution
 		float diffuse = std::max(0.f, dot(normal, dir_light)) * (surface->material).albedo / 3.14f;
-
 		c_out = (surface->material).base_color * (diffuse * intensity);
 	}
 
@@ -91,11 +101,14 @@ Color RayTracer::indirect_lighting(std::shared_ptr<Surface> surface, const Scene
 {
 	Color c_out;
 
+	// End of recursion
 	if (n_bounce == 0) {
 		return c_out;
 	}
 
+	// Split ray at bouncing point
 	for (int i = 0; i < rays_per_bounce; i++) {
+
 		// Generate ray in random direction
 		float r1 = m_dis(m_gen);
 		float theta = std::acos(1 - r1);
@@ -119,7 +132,7 @@ Color RayTracer::indirect_lighting(std::shared_ptr<Surface> surface, const Scene
 		// Recursive indirect lighting
 		Color c_indirect = indirect_lighting(surf_hit, scene, p_hit, n_hit, n_bounce - 1);
 
-		// Add contribution
+		// Add lighting contribution
 		float diffuse = std::max(0.f, dot(normal, ray_bounce.dir)) * (surface->material).albedo / 3.14f;
 		c_out += (c_direct + c_indirect) * diffuse / static_cast<float>(rays_per_bounce);
 	}

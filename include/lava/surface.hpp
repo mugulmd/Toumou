@@ -11,7 +11,7 @@
 namespace lava {
 
 /**
- * @brief An abstract class to define and manipulate surface models.
+ * @brief Abstract class for surface models.
  */
 class Surface {
 
@@ -36,9 +36,9 @@ public:
 
 	/**
 	 * @brief Check if the given ray intersects this surface.
-	 * @param[in] ray The ray to check for intersection.
-	 * @param[out] t The distance between the ray's origin and the hit (if a hit has been found).
-	 * @param[out] n The surface normal at the hit (if a hit has been found).
+	 * @param[in] ray Ray to check for intersection.
+	 * @param[out] t Distance between the ray's origin and the hit (if a hit has been found).
+	 * @param[out] n Surface normal at the hit (if a hit has been found).
 	 * @return Whether or not an intersection point was found.
 	 */
 	virtual bool hit(const Ray& ray, float& t, Vec3& n) const = 0;
@@ -46,7 +46,7 @@ public:
 };
 
 /**
- * @brief An abstract class to define an implicit surface given its corresponding field function.
+ * @brief Abstract class to define an implicit surface given its corresponding field function.
  */
 class ImplicitSurface : public Surface {
 public:
@@ -59,29 +59,29 @@ public:
 	/**
 	 * @brief Field function that defines the surface as the solution to { field = 1 }.
 	 * @param[in] pos Position where the field is evaluated.
-	 * @return The field value at that position.
+	 * @return Field value at that position.
 	 */
 	virtual float field(const Vec3& pos) const = 0;
 
 	/**
-	 * @brief The field derivative along a ray.
+	 * @brief Field derivative along a ray.
 	 * @param[in] ray Input ray.
-	 * @param[in] t The parameters giving the position along the ray for evaluating the derivative.
-	 * @return The derivative along the ray at the given position.
+	 * @param[in] t Parameters giving the position along the ray for evaluating the derivative.
+	 * @return Derivative along the ray at the given position.
 	 */
 	virtual float ray_derivative(const Ray& ray, float t) const;
 
 	/**
-	 * @brief The surface normal, i.e. the normalized opposite of the field gradient.
+	 * @brief Surface normal, i.e. the normalized opposite of the field gradient.
 	 * @param[in] pos Position where the normal is evaluated.
-	 * @return The surface normal at that position.
+	 * @return Surface normal at that position.
 	 */
 	virtual Vec3 normal(const Vec3& pos) const;
 
 };
 
 /**
- * @brief A class to define and manipulate a sphere surface model.
+ * @brief Sphere surface model.
  */
 class Sphere : public ImplicitSurface {
 public:
@@ -99,15 +99,15 @@ public:
 };
 
 /**
- * @brief Constructs and initializes a sphere surface.
- * @param[in] center The sphere center.
- * @param[in] radius The sphere radius.
- * @return A shared pointer to a sphere surface model initialized with the given parameters.
+ * @brief Initialize a sphere surface.
+ * @param[in] center Sphere center.
+ * @param[in] radius Sphere radius.
+ * @return Shared pointer to a sphere surface model initialized with the given parameters.
  */
 std::shared_ptr<Sphere> make_sphere(const Vec3& center, float radius);
 
 /**
- * @brief A class to define and manipulate a plane surface model.
+ * @brief Plane surface model.
  */
 class Plane : public ImplicitSurface {
 public:
@@ -126,14 +126,14 @@ public:
 
 /**
  * @brief Constructs and initializes a plane surface.
- * @param[in] origin The plane origin.
- * @param[in] normal The plane normal (must be normalized).
- * @return A shared pointer to a plane surface model initialized with the given parameters.
+ * @param[in] origin Plane origin.
+ * @param[in] normal Plane normal (must be normalized).
+ * @return Shared pointer to a plane surface model initialized with the given parameters.
  */
 std::shared_ptr<Plane> make_plane(const Vec3& origin, const Vec3& normal);
 
 /**
- * @brief A class to define and manipulate a tube surface model.
+ * @brief Tube surface model.
  */
 class Tube : public ImplicitSurface {
 public:
@@ -154,24 +154,24 @@ public:
 };
 
 /**
- * @brief Constructs and initializes a tube surface.
- * @param[in] origin The tube origin.
- * @param[in] direction The tube direction.
- * @param[in] radius The tube radius.
- * @return A shared pointer to a tube surface model initialized with the given parameters.
+ * @brief Initialize a tube surface.
+ * @param[in] origin Tube origin.
+ * @param[in] direction Tube direction.
+ * @param[in] radius Tube radius.
+ * @return Shared pointer to a tube surface model initialized with the given parameters.
  */
 std::shared_ptr<Tube> make_tube(const Vec3& origin, const Vec3& direction, float radius);
 
 /**
- * @brief A class to merge several implicit surfaces together.
+ * @brief Merge several implicit surfaces together.
  */
 class Fusion : public ImplicitSurface {
 public:
 
 	/**
 	 * @brief Add an implicit surface.
-	 * @param[in] surface A shared pointer to an implicit surface.
-	 * @param[in] coef The surface ponderation in the fusion.
+	 * @param[in] surface Shared pointer to an implicit surface.
+	 * @param[in] coef Surface ponderation in the fusion.
 	 */
 	void add(std::shared_ptr<ImplicitSurface> surface, float coef);
 
@@ -185,8 +185,8 @@ private:
 };
 
 /**
- * @brief Constructs an empty fusion surface.
- * @return A shared pointer to an empty fusion surface.
+ * @brief Initialize an empty fusion surface.
+ * @return Shared pointer to an empty fusion surface.
  */
 std::shared_ptr<Fusion> make_fusion();
 

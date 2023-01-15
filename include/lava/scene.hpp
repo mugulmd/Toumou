@@ -10,7 +10,7 @@
 namespace lava {
 
 /**
- * @brief A class to reference and access the objects in a 3D scene.
+ * @brief Reference and access the objects in a 3D scene.
  */
 class Scene {
 public:

@@ -9,7 +9,7 @@
 namespace lava {
 
 /**
- * @brief An abstract class to define and manipulate light source models.
+ * @brief Abstract class for light source models.
  */
 class Light {
 public:
@@ -24,17 +24,17 @@ public:
 
 	/**
 	 * @brief Sample the light source contribution at a given position in 3D space.
-	 * @param[in] pos The position where the light source contribution is to be sampled.
-	 * @param[out] dir The light direction at the given position.
-	 * @param[out] dist The distance to the light source at the given position.
-	 * @param[out] intensity The light intensity at the given position.
+	 * @param[in] pos Position where the light source contribution is to be sampled.
+	 * @param[out] dir Light direction at the given position.
+	 * @param[out] dist Distance to the light source at the given position.
+	 * @param[out] intensity Light intensity at the given position.
 	 */
 	virtual void sample(const Vec3& pos, Vec3& dir, float& dist, float& intensity) const = 0;
 
 };
 
 /**
- * @brief A class to define and manipulate a point light source model (a.k.a delta light).
+ * @brief Point light source model (a.k.a delta light).
  */
 class PointLight : public Light {
 public:
@@ -47,16 +47,16 @@ public:
 };
 
 /**
- * @brief Constructs and initializes a point light source.
- * @param[in] location The position from where light is emitted.
- * @param[in] brightness The brightness of the light source.
- * @param[in] color The color of the light source.
- * @return A shared pointer to a point light source model initialized with the given parameters.
+ * @brief Initialize a point light source.
+ * @param[in] location Position where light is emitted from.
+ * @param[in] brightness Brightness of the light source.
+ * @param[in] color Color of the light source.
+ * @return Shared pointer to a point light source model initialized with the given parameters.
  */
 std::shared_ptr<PointLight> make_point_light(const Vec3& location, float brightness, const Color& color);
 
 /**
- * @brief A class to define and manipulate a directional light source model.
+ * @brief Directional light source model.
  */
 class DirectionalLight : public Light {
 public:
@@ -70,10 +70,10 @@ public:
 
 /**
  * @brief Constructs and initializes a directional light source.
- * @param[in] direction The direction of the light rays.
- * @param[in] brightness The brightness of the light source.
- * @param[in] color The color of the light source.
- * @return A shared pointer to a directional light source model initialized with the given parameters.
+ * @param[in] direction Direction of the light rays.
+ * @param[in] brightness Brightness of the light source.
+ * @param[in] color Color of the light source.
+ * @return Shared pointer to a directional light source model initialized with the given parameters.
  */
 std::shared_ptr<DirectionalLight> make_directional_light(const Vec3& direction, float brightness, const Color& color);
 
