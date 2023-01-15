@@ -1,12 +1,12 @@
-#include <lava/root_finding.hpp>
+#include <lava/root_estimation.hpp>
 
 
 namespace lava {
 
-bool RootFinder::find_first_root(const Ray& ray,
-								 std::function<float(const Vec3&)> field,
-								 std::function<float(const Ray&, float)> ray_derivative,
-								 float& t_root) const
+bool RootEstimator::find_first_root(const Ray& ray,
+									std::function<float(const Vec3&)> field,
+									std::function<float(const Ray&, float)> ray_derivative,
+									float& t_root) const
 {
 	float t = t_min;
 

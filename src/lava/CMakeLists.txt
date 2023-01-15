@@ -18,8 +18,8 @@ SHARED
     material.cpp
     ${LAVA_INCLUDE_DIR}/lava/rendering.hpp
     rendering.cpp
-    ${LAVA_INCLUDE_DIR}/lava/root_finding.hpp
-    root_finding.cpp
+    ${LAVA_INCLUDE_DIR}/lava/root_estimation.hpp
+    root_estimation.cpp
     ${LAVA_INCLUDE_DIR}/lava/scene.hpp
     scene.cpp
     ${LAVA_INCLUDE_DIR}/lava/surface.hpp

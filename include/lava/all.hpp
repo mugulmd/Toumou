@@ -9,6 +9,6 @@
 #include <lava/light.hpp>
 #include <lava/material.hpp>
 #include <lava/rendering.hpp>
-#include <lava/root_finding.hpp>
+#include <lava/root_estimation.hpp>
 #include <lava/scene.hpp>
 #include <lava/surface.hpp>

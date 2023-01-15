@@ -113,14 +113,14 @@ PYBIND11_MODULE(lava_python, m)
 		.def(py::init<int, int, int, int, int>())
 		.def("render", &RayTracer::render);
 
-	// Root finding
+	// Root estimation
 
-	py::class_<RootFinder>(m, "RootFinder")
-		.def_readwrite("t_min", &RootFinder::t_min)
-		.def_readwrite("t_max", &RootFinder::t_max)
-		.def_readwrite("sampling_step", &RootFinder::sampling_step)
-		.def_readwrite("threshold", &RootFinder::threshold)
-		.def_readwrite("max_iterations", &RootFinder::max_iterations);
+	py::class_<RootEstimator>(m, "RootEstimator")
+		.def_readwrite("t_min", &RootEstimator::t_min)
+		.def_readwrite("t_max", &RootEstimator::t_max)
+		.def_readwrite("sampling_step", &RootEstimator::sampling_step)
+		.def_readwrite("threshold", &RootEstimator::threshold)
+		.def_readwrite("max_iterations", &RootEstimator::max_iterations);
 
 	// Scene
 
@@ -139,7 +139,7 @@ PYBIND11_MODULE(lava_python, m)
 		.def_readwrite("material", &Surface::material);
 
 	py::class_<ImplicitSurface, std::shared_ptr<ImplicitSurface>, Surface>(m, "ImplicitSurface")
-		.def_readwrite("root_finder", &ImplicitSurface::root_finder);
+		.def_readwrite("root_estimator", &ImplicitSurface::root_estimator);
 
 	py::class_<Sphere, std::shared_ptr<Sphere>, ImplicitSurface>(m, "Sphere")
 		.def_readwrite("center", &Sphere::center)

@@ -2,7 +2,7 @@
 
 #include <lava/geometry.hpp>
 #include <lava/material.hpp>
-#include <lava/root_finding.hpp>
+#include <lava/root_estimation.hpp>
 
 #include <memory>
 #include <unordered_map>
@@ -52,7 +52,7 @@ class ImplicitSurface : public Surface {
 public:
 
 	/// Provide access to the root estimation algorithm parameters.
-	RootFinder root_finder;
+	RootEstimator root_estimator;
 
 	virtual bool hit(const Ray& ray, float& t, Vec3& n) const override;
 

@@ -36,7 +36,7 @@ Vec3 ImplicitSurface::normal(const Vec3& pos) const
 
 bool ImplicitSurface::hit(const Ray& ray, float& t, Vec3& n) const
 {
-	bool found_root = root_finder.find_first_root(ray,
+	bool found_root = root_estimator.find_first_root(ray,
 		[this](const Vec3& pos) -> float {
 			return field(pos) - 1.f;
 		},

@@ -15,7 +15,7 @@ namespace lava {
  * 1. sample the field along the ray with a fixed step to find an interval on which the field sign changes
  * 2. apply Newton's algorithm on this interval to refine the root value
  */
-struct RootFinder {
+struct RootEstimator {
 
 	/// Start point of the search range.
 	float t_min = 0.f;
