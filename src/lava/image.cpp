@@ -1,5 +1,6 @@
 #include <lava/image.hpp>
 #include <lava/color.hpp>
+#include <lava/geometry.hpp>
 
 
 namespace lava {
@@ -46,5 +47,7 @@ const T* Image<T>::data() const
 }
 
 template class Image<Color>;
+template class Image<Vec3>;
+template class Image<float>;
 
 }

@@ -27,6 +27,10 @@ public:
 	/// RGB layer.
 	Image<Color> image;
 
+	Image<Vec3> normal_map;
+	Image<float> depth_map;
+	Image<float> index_map;
+
 	RayTracer(int w, int h, int sampling = 16, int bounce = 4, int split = 16);
 
 	void render(const Scene& scene, std::function<void(int)> progress_callback);

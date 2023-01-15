@@ -8,8 +8,8 @@
 
 namespace lava {
 
-RayTracer::RayTracer(int w, int h, int sampling, int bounce, int split) : 
-	image(w, h),
+	RayTracer::RayTracer(int w, int h, int sampling, int bounce, int split) :
+		image(w, h), normal_map(w, h), depth_map(w, h), index_map(w, h),
 	pixel_sampling(sampling), max_bounce(bounce), rays_per_bounce(split),
 	m_dis(0.f, 1.f)
 {
@@ -153,6 +153,10 @@ void RayTracer::render(const Scene& scene, std::function<void(int)> progress_cal
 			// Pixel color (to compute)
 			Color c_out;
 
+			Vec3 n_out;
+			float depth_min = (scene.camera())->z_far;
+			float uid_out = 0.f;
+
 			// Pixel top-left coordinates
 			const float x = (static_cast<float>(j) / f_width) - .5f;
 			const float y = .5f - (static_cast<float>(i) / f_height);
@@ -172,6 +176,13 @@ void RayTracer::render(const Scene& scene, std::function<void(int)> progress_cal
 				if (!surface) {
 					// No surface hit, send next ray
 					continue;
+				}
+
+				n_out += normal;
+
+				if (t < depth_min) {
+					depth_min = t;
+					uid_out = static_cast<float>(surface->uid());
 				}
 
 				// Hit position
@@ -195,6 +206,11 @@ void RayTracer::render(const Scene& scene, std::function<void(int)> progress_cal
 
 			// Store results
 			image.set(i, j, c_out);
+
+			n_out.normalize();
+			normal_map.set(i, j, n_out);
+			depth_map.set(i, j, depth_min);
+			index_map.set(i, j, uid_out);
 
 			// Every time progress reaches one percent more, call progress callback
 			progress++;
