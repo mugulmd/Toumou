@@ -1,23 +1,23 @@
 pybind11_add_module(
-lava_python 
-    lava_python.cpp
+toumou 
+    toumou_python.cpp
 )
 
 target_include_directories(
-lava_python 
+toumou 
 PUBLIC 
-    ${LAVA_INCLUDE_DIR}
+    ${TOUMOU_INCLUDE_DIR}
 )
 
 target_link_libraries(
-lava_python 
+toumou 
 PUBLIC 
-    lava_engine
+    toumou_engine
 )
 
 install(
 TARGETS 
-    lava_python 
+    toumou 
 DESTINATION 
-    Lava-${CMAKE_PROJECT_VERSION}
+    Toumou-${CMAKE_PROJECT_VERSION}
 )

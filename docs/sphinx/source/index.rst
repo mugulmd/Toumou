@@ -1,4 +1,4 @@
-Welcome to Lava's documentation!
+Welcome to Toumou's documentation!
 ================================
 
 .. toctree::

@@ -1,24 +1,24 @@
 add_executable(
-lava_example
+toumou_example
     main_example.cpp
 )
 
 target_include_directories(
-lava_example 
+toumou_example 
 PUBLIC 
-    ${LAVA_INCLUDE_DIR}
+    ${TOUMOU_INCLUDE_DIR}
 )
 
 target_link_libraries(
-lava_example 
+toumou_example 
 PUBLIC 
-    lava_engine
+    toumou_engine
     spdlog::spdlog
 )
 
 install(
 TARGETS 
-    lava_example 
+    toumou_example 
 DESTINATION 
-    Lava-${CMAKE_PROJECT_VERSION}
+    Toumou-${CMAKE_PROJECT_VERSION}
 )

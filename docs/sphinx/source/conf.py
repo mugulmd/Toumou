@@ -6,7 +6,7 @@
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
-project = 'Lava'
+project = 'Toumou'
 copyright = '2023, Loïc Vital'
 author = 'Loïc Vital'
 release = '0.1.0'

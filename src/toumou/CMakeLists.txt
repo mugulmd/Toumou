@@ -1,0 +1,49 @@
+add_library(
+toumou_engine
+SHARED
+    ${TOUMOU_INCLUDE_DIR}/toumou/camera.hpp
+    camera.cpp
+    ${TOUMOU_INCLUDE_DIR}/toumou/color.hpp
+    color.cpp
+    ${TOUMOU_INCLUDE_DIR}/toumou/constants.hpp
+    ${TOUMOU_INCLUDE_DIR}/toumou/field.hpp
+    field.cpp
+    ${TOUMOU_INCLUDE_DIR}/toumou/geometry.hpp
+    geometry.cpp
+    ${TOUMOU_INCLUDE_DIR}/toumou/image.hpp
+    image.cpp
+    ${TOUMOU_INCLUDE_DIR}/toumou/io.hpp
+    io.cpp
+    ${TOUMOU_INCLUDE_DIR}/toumou/light.hpp
+    light.cpp
+    ${TOUMOU_INCLUDE_DIR}/toumou/material.hpp
+    material.cpp
+    ${TOUMOU_INCLUDE_DIR}/toumou/rendering.hpp
+    rendering.cpp
+    ${TOUMOU_INCLUDE_DIR}/toumou/root_estimation.hpp
+    root_estimation.cpp
+    ${TOUMOU_INCLUDE_DIR}/toumou/scene.hpp
+    scene.cpp
+    ${TOUMOU_INCLUDE_DIR}/toumou/surface.hpp
+    surface.cpp
+)
+
+target_include_directories(
+toumou_engine 
+PUBLIC 
+    ${TOUMOU_INCLUDE_DIR}
+)
+
+target_link_libraries(
+toumou_engine 
+PRIVATE
+    spdlog::spdlog 
+    OpenEXR::OpenEXR
+)
+
+install(
+TARGETS
+    toumou_engine
+DESTINATION
+    Toumou-${CMAKE_PROJECT_VERSION}
+)

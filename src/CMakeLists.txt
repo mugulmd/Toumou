@@ -1,5 +1,5 @@
-if(BUILD_LAVA_ENGINE)
-	add_subdirectory(lava)
+if(BUILD_TOUMOU_ENGINE)
+	add_subdirectory(toumou)
 endif()
 
 

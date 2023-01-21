@@ -1,8 +1,8 @@
-Lava Python API Reference
+Toumou Python API Reference
 =========================
 
 .. autosummary::
    :recursive:
    :toctree: generated
 
-   lava_python
+   toumou

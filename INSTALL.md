@@ -19,25 +19,21 @@
 
 In a terminal:
 ```
-cd Lava
+cd Toumou
 mkdir build && cd build
 cmake .. 
 ```
 
-This will create a `Lava.sln` file, which you can open in Visual Studio to build the different targets of the project.
+This will create a `Toumou.sln` file, which you can open in Visual Studio to build the different targets of the project.
 
 ### CMake options
 
-- `BUILD_LAVA_ENGINE`: enable/disable building the Lava engine
+- `BUILD_TOUMOU_ENGINE`: enable/disable building the Toumou engine
 - `BUILD_EXAMPLE_APP`: enable/disable building the example application
 - `BUILD_PYTHON_BINDINGS`: enable/disable building the Python bindings
 
 ## Test
 
-If you built the example application, you can use it to test your installation: in a terminal, go to your installation directory and run `lava_example /path/to/image.exr` (replace `/path/to/image.exr` with the actual filepath you want to save the rendered image to).
-
-Once this is done, open the saved image with the EXR viewer of your choice. You should get something like this:
-
-![lava_example](docs/assets/lava_example.jpg)
+If you built the example application, you can use it to test your installation: in a terminal, go to your installation directory and run `toumou_example /path/to/image.exr` (replace `/path/to/image.exr` with the actual filepath you want to save the rendered image to).
 
 > Note: to run the example application you might need to add the path to the OpenEXR, IMath and zlib DLLs in your `PATH` environment variable.
