@@ -3,8 +3,6 @@
 #include <lava/color.hpp>
 #include <lava/geometry.hpp>
 
-#include <memory>
-
 
 namespace lava {
 
@@ -14,13 +12,18 @@ namespace lava {
 class Light {
 public:
 
-	/// Amount of energy provided by the light source.
-	float brightness;
+	/**
+	 * @brief TODO
+	 */
+	Light(const Color& _color, float _brightness);
 
 	/// Light source color.
 	/// For now light sources only provide one color, 
 	/// this will change when we add environment lights.
 	Color color;
+
+	/// Amount of energy provided by the light source.
+	float brightness;
 
 	/**
 	 * @brief Sample the light source contribution at a given position in 3D space.
@@ -38,6 +41,11 @@ public:
  */
 class PointLight : public Light {
 public:
+
+	/**
+	 * @brief TODO
+	 */
+	PointLight(const Color& _color, float _brightness, const Vec3& _location);
 	
 	/// Position of the light source in 3D space.
 	Vec3 location;
@@ -47,19 +55,15 @@ public:
 };
 
 /**
- * @brief Initialize a point light source.
- * @param[in] location Position where light is emitted from.
- * @param[in] brightness Brightness of the light source.
- * @param[in] color Color of the light source.
- * @return Shared pointer to a point light source model initialized with the given parameters.
- */
-std::shared_ptr<PointLight> make_point_light(const Vec3& location, float brightness, const Color& color);
-
-/**
  * @brief Directional light source model.
  */
 class DirectionalLight : public Light {
 public:
+
+	/**
+	 * @brief TODO
+	 */
+	DirectionalLight(const Color& _color, float _brightness, const Vec3& _direction);
 	
 	/// Direction of the light source.
 	Vec3 direction;
@@ -67,14 +71,5 @@ public:
 	void sample(const Vec3& pos, Vec3& dir, float& dist, float& intensity) const override;
 
 };
-
-/**
- * @brief Constructs and initializes a directional light source.
- * @param[in] direction Direction of the light rays.
- * @param[in] brightness Brightness of the light source.
- * @param[in] color Color of the light source.
- * @return Shared pointer to a directional light source model initialized with the given parameters.
- */
-std::shared_ptr<DirectionalLight> make_directional_light(const Vec3& direction, float brightness, const Color& color);
 
 }

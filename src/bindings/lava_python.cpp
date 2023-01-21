@@ -18,7 +18,6 @@ PYBIND11_MODULE(lava_python, m)
 	// Color
 
 	py::class_<Color>(m, "Color")
-		.def(py::init<>())
 		.def(py::init<float, float, float>())
 		.def_readwrite("r", &Color::r)
 		.def_readwrite("g", &Color::g)
@@ -27,7 +26,6 @@ PYBIND11_MODULE(lava_python, m)
 	// Geometry
 
 	py::class_<Vec3>(m, "Vec3")
-		.def(py::init<>())
 		.def(py::init<float, float, float>())
 		.def_readwrite("x", &Vec3::x)
 		.def_readwrite("y", &Vec3::y)
@@ -37,17 +35,14 @@ PYBIND11_MODULE(lava_python, m)
 		.def("normalize", &Vec3::normalize)
 		.def("normalized", &Vec3::normalized);
 
-	m.def("distance", &distance);
-
-	m.def("dot", &dot);
-
-	m.def("cross", &cross);
-
 	py::class_<Ray>(m, "Ray")
 		.def_readonly("origin", &Ray::origin)
 		.def_readonly("dir", &Ray::dir)
 		.def("at", &Ray::at);
 
+	m.def("distance", &distance);
+	m.def("dot", &dot);
+	m.def("cross", &cross);
 	m.def("trace", &trace);
 
 	// Camera
@@ -166,9 +161,4 @@ PYBIND11_MODULE(lava_python, m)
 		py::arg("origin") = Vec3(0, 0, 0), 
 		py::arg("direction") = Vec3(0, 1, 0), 
 		py::arg("radius") = .5f);
-
-	py::class_<Fusion, std::shared_ptr<Fusion>, ImplicitSurface>(m, "Fusion")
-		.def("add", &Fusion::add);
-
-	m.def("make_fusion", &make_fusion);
 }

@@ -5,6 +5,17 @@
 
 namespace lava {
 
+Light::Light(const Color& _color, float _brightness) : 
+	color(_color), brightness(_brightness)
+{
+}
+
+PointLight::PointLight(const Color& _color, float _brightness, const Vec3& _location) : 
+	Light(_color, _brightness),
+	location(_location)
+{
+}
+
 void PointLight::sample(const Vec3& pos, Vec3& dir, float& dist, float& intensity) const
 {
 	dir = (location - pos).normalized();
@@ -12,13 +23,10 @@ void PointLight::sample(const Vec3& pos, Vec3& dir, float& dist, float& intensit
 	intensity = brightness / (dist * dist);
 }
 
-std::shared_ptr<PointLight> make_point_light(const Vec3& location, float brightness, const Color& color)
+DirectionalLight::DirectionalLight(const Color& _color, float _brightness, const Vec3& _direction) : 
+	Light(_color, _brightness),
+	direction(_direction)
 {
-	auto light = std::make_shared<PointLight>();
-	light->location = location;
-	light->brightness = brightness;
-	light->color = color;
-	return light;
 }
 
 void DirectionalLight::sample(const Vec3& pos, Vec3& dir, float& dist, float& intensity) const
@@ -26,15 +34,6 @@ void DirectionalLight::sample(const Vec3& pos, Vec3& dir, float& dist, float& in
 	dir = direction;
 	dist = std::numeric_limits<float>::max();
 	intensity = brightness;
-}
-
-std::shared_ptr<DirectionalLight> make_directional_light(const Vec3& direction, float brightness, const Color& color)
-{
-	auto light = std::make_shared<DirectionalLight>();
-	light->direction = direction;
-	light->brightness = brightness;
-	light->color = color;
-	return light;
 }
 
 }

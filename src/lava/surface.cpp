@@ -1,4 +1,5 @@
 #include <lava/surface.hpp>
+#include <lava/constants.hpp>
 
 #include <cmath>
 #include <algorithm>
@@ -18,30 +19,20 @@ unsigned int Surface::uid() const
 	return m_uid;
 }
 
-float ImplicitSurface::ray_derivative(const Ray& ray, float t) const
+ImplicitSurface::ImplicitSurface(std::shared_ptr<Field> _field) :
+	Surface(),
+	field(_field)
 {
-	return (field(ray.at(t + 1e-5f)) - field(ray.at(t - 1e-5f))) * .5f * 1e5f;
-}
-
-Vec3 ImplicitSurface::normal(const Vec3& pos) const
-{
-	Vec3 dx(1e-5f, 0, 0);
-	Vec3 dy(0, 1e-5f, 0);
-	Vec3 dz(0, 0, 1e-5f);
-	float grad_x = (field(pos + dx) - field(pos - dx)) * .5f * 1e5f;
-	float grad_y = (field(pos + dy) - field(pos - dy)) * .5f * 1e5f;
-	float grad_z = (field(pos + dz) - field(pos - dz)) * .5f * 1e5f;
-	return Vec3(-grad_x, -grad_y, -grad_z).normalized();
 }
 
 bool ImplicitSurface::hit(const Ray& ray, float& t, Vec3& n) const
 {
 	bool found_root = root_estimator.find_first_root(ray,
 		[this](const Vec3& pos) -> float {
-			return field(pos) - 1.f;
+			return field->value(pos) - 1.f;
 		},
 		[this](const Ray& ray, float t) -> float {
-			return ray_derivative(ray, t);
+			return field->ray_derivative(ray, t);
 		},
 		t);
 
@@ -49,9 +40,16 @@ bool ImplicitSurface::hit(const Ray& ray, float& t, Vec3& n) const
 		return false;
 	}
 
-	n = normal(ray.at(t));
+	n = field->gradient(ray.at(t)) * -1;
+	n.normalize();
 
 	return true;
+}
+
+Sphere::Sphere(const Vec3& _center, float _radius) :
+	ImplicitSurface(std::make_shared<Inverse>(std::make_shared<DistToPoint>(_center), _radius* _radius)),
+	center(_center), radius(_radius)
+{
 }
 
 bool Sphere::hit(const Ray& ray, float& t, Vec3& n) const
@@ -73,19 +71,10 @@ bool Sphere::hit(const Ray& ray, float& t, Vec3& n) const
 	return true;
 }
 
-float Sphere::field(const Vec3& pos) const
+Plane::Plane(const Vec3& _origin, const Vec3& _normal) :
+	ImplicitSurface(std::make_shared<Exponential>(std::make_shared<SignedDistToPlane>(_origin, _normal), -1)),
+	origin(_origin), normal(_normal)
 {
-	float dist2 = (pos - center).norm2();
-	dist2 = std::max(dist2, 1e-5f);
-	return (radius * radius) / dist2;
-}
-
-std::shared_ptr<Sphere> make_sphere(const Vec3& center, float radius)
-{
-	auto surface = std::make_shared<Sphere>();
-	surface->center = center;
-	surface->radius = radius;
-	return surface;
 }
 
 bool Plane::hit(const Ray& ray, float& t, Vec3& n) const
@@ -93,7 +82,7 @@ bool Plane::hit(const Ray& ray, float& t, Vec3& n) const
 	float alpha = dot(origin - ray.origin, normal);
 	float beta = dot(ray.dir, normal);
 
-	if (std::abs(beta) < 1e-5) {
+	if (std::abs(beta) < eps_div_by_zero) {
 		return false;
 	}
 
@@ -106,18 +95,10 @@ bool Plane::hit(const Ray& ray, float& t, Vec3& n) const
 	return true;
 }
 
-float Plane::field(const Vec3& pos) const
+Tube::Tube(const Vec3& _origin, const Vec3& _direction, float _radius) : 
+	ImplicitSurface(std::make_shared<Inverse>(std::make_shared<DistToLine>(_origin, _direction), _radius * _radius)),
+	origin(_origin), direction(_direction), radius(_radius)
 {
-	float signed_dist = dot(pos - origin, normal);
-	return std::exp(-signed_dist);
-}
-
-std::shared_ptr<Plane> make_plane(const Vec3& origin, const Vec3& normal)
-{
-	auto surface = std::make_shared<Plane>();
-	surface->origin = origin;
-	surface->normal = normal;
-	return surface;
 }
 
 bool Tube::hit(const Ray& ray, float& t, Vec3& n) const
@@ -144,44 +125,6 @@ bool Tube::hit(const Ray& ray, float& t, Vec3& n) const
 	n = (p - q).normalized();
 
 	return true;
-}
-
-float Tube::field(const Vec3& pos) const
-{
-	Vec3 delta = pos - origin;
-	float lambda = dot(delta, direction);
-	float dist2 = delta.norm2() - lambda * lambda;
-	dist2 = std::max(dist2, 1e-5f);
-	return (radius * radius) / dist2;
-}
-
-std::shared_ptr<Tube> make_tube(const Vec3& origin, const Vec3& direction, float radius)
-{
-	auto surface = std::make_shared<Tube>();
-	surface->origin = origin;
-	surface->direction = direction;
-	surface->radius = radius;
-	return surface;
-}
-
-void Fusion::add(std::shared_ptr<ImplicitSurface> surface, float coef)
-{
-	m_surfaces[surface] = coef;
-}
-
-float Fusion::field(const Vec3& pos) const
-{
-	float value = 0.f;
-	for (const auto& [surface, coef] : m_surfaces) {
-		value += surface->field(pos) * coef;
-	}
-	return value;
-}
-
-std::shared_ptr<Fusion> make_fusion()
-{
-	auto surface = std::make_shared<Fusion>();
-	return surface;
 }
 
 }
