@@ -50,7 +50,7 @@ public:
 	/**
 	 * @brief TODO
 	 */
-	void add(std::shared_ptr<Field> field, float coef);
+	void add(std::shared_ptr<Field> field, float coef = 1.f);
 
 	float value(const Vec3& pos) const override;
 
@@ -68,13 +68,13 @@ private:
 /**
  * @brief TODO
  */
-class DistToPoint : public Field {
+class Dist2ToPoint : public Field {
 public:
 
 	/**
 	 * @brief TODO
 	 */
-	DistToPoint(const Vec3& _center);
+	Dist2ToPoint(const Vec3& _center);
 
 	/// TODO
 	Vec3 center;
@@ -90,13 +90,13 @@ public:
 /**
  * @brief TODO
  */
-class DistToLine : public Field {
+class Dist2ToLine : public Field {
 public:
 
 	/**
 	 * @brief TODO
 	 */
-	DistToLine(const Vec3& _origin, const Vec3& _direction);
+	Dist2ToLine(const Vec3& _origin, const Vec3& _direction);
 
 	/// TODO
 	Vec3 origin;

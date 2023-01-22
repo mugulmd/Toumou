@@ -46,30 +46,9 @@ public:
 };
 
 /**
- * @brief Define an implicit surface using a field function.
- */
-class ImplicitSurface : public Surface {
-public:
-
-	/**
-	 * @brief TODO
-	 */
-	ImplicitSurface(std::shared_ptr<Field> _field);
-
-	/// TODO
-	std::shared_ptr<Field> field;
-
-	/// Provide access to the root estimation algorithm parameters.
-	RootEstimator root_estimator;
-
-	virtual bool hit(const Ray& ray, float& t, Vec3& n) const override;
-
-};
-
-/**
  * @brief Sphere surface model.
  */
-class Sphere : public ImplicitSurface {
+class Sphere : public Surface {
 public:
 
 	/**
@@ -90,7 +69,7 @@ public:
 /**
  * @brief Plane surface model.
  */
-class Plane : public ImplicitSurface {
+class Plane : public Surface {
 public:
 
 	/**
@@ -111,7 +90,7 @@ public:
 /**
  * @brief Tube surface model.
  */
-class Tube : public ImplicitSurface {
+class Tube : public Surface {
 public:
 
 	/**
@@ -129,6 +108,27 @@ public:
 	float radius;
 
 	bool hit(const Ray& ray, float& t, Vec3& n) const override;
+
+};
+
+/**
+ * @brief Define an implicit surface using a field function.
+ */
+class ImplicitSurface : public Surface {
+public:
+
+	/**
+	 * @brief TODO
+	 */
+	ImplicitSurface(std::shared_ptr<Field> _field);
+
+	/// TODO
+	std::shared_ptr<Field> field;
+
+	/// Provide access to the root estimation algorithm parameters.
+	RootEstimator root_estimator;
+
+	virtual bool hit(const Ray& ray, float& t, Vec3& n) const override;
 
 };
 

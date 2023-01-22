@@ -16,6 +16,7 @@ SHARED
     io.cpp
     ${TOUMOU_INCLUDE_DIR}/toumou/light.hpp
     light.cpp
+    ${TOUMOU_INCLUDE_DIR}/toumou/macros.hpp
     ${TOUMOU_INCLUDE_DIR}/toumou/material.hpp
     material.cpp
     ${TOUMOU_INCLUDE_DIR}/toumou/rendering.hpp

@@ -1,5 +1,6 @@
 #include <toumou/surface.hpp>
 #include <toumou/constants.hpp>
+#include <toumou/macros.hpp>
 
 #include <cmath>
 #include <algorithm>
@@ -47,7 +48,6 @@ bool ImplicitSurface::hit(const Ray& ray, float& t, Vec3& n) const
 }
 
 Sphere::Sphere(const Vec3& _center, float _radius) :
-	ImplicitSurface(std::make_shared<Inverse>(std::make_shared<DistToPoint>(_center), _radius* _radius)),
 	center(_center), radius(_radius)
 {
 }
@@ -72,7 +72,6 @@ bool Sphere::hit(const Ray& ray, float& t, Vec3& n) const
 }
 
 Plane::Plane(const Vec3& _origin, const Vec3& _normal) :
-	ImplicitSurface(std::make_shared<Exponential>(std::make_shared<SignedDistToPlane>(_origin, _normal), -1)),
 	origin(_origin), normal(_normal)
 {
 }
@@ -96,7 +95,6 @@ bool Plane::hit(const Ray& ray, float& t, Vec3& n) const
 }
 
 Tube::Tube(const Vec3& _origin, const Vec3& _direction, float _radius) : 
-	ImplicitSurface(std::make_shared<Inverse>(std::make_shared<DistToLine>(_origin, _direction), _radius * _radius)),
 	origin(_origin), direction(_direction), radius(_radius)
 {
 }

@@ -64,48 +64,48 @@ float Fusion::ray_derivative(const Ray& ray, float t) const
 	return sum;
 }
 
-DistToPoint::DistToPoint(const Vec3& _center) : 
+Dist2ToPoint::Dist2ToPoint(const Vec3& _center) : 
 	Field(),
 	center(_center)
 {
 }
 
-float DistToPoint::value(const Vec3& pos) const
+float Dist2ToPoint::value(const Vec3& pos) const
 {
 	return (pos - center).norm2();
 }
 
-Vec3 DistToPoint::gradient(const Vec3& pos) const
+Vec3 Dist2ToPoint::gradient(const Vec3& pos) const
 {
 	return (pos - center) * 2.f;
 }
 
-float DistToPoint::ray_derivative(const Ray& ray, float t) const
+float Dist2ToPoint::ray_derivative(const Ray& ray, float t) const
 {
 	return 2.f * (t + dot(ray.dir, ray.origin - center));
 }
 
-DistToLine::DistToLine(const Vec3& _origin, const Vec3& _direction) : 
+Dist2ToLine::Dist2ToLine(const Vec3& _origin, const Vec3& _direction) : 
 	Field(),
 	origin(_origin), direction(_direction)
 {
 }
 
-float DistToLine::value(const Vec3& pos) const
+float Dist2ToLine::value(const Vec3& pos) const
 {
 	Vec3 delta = pos - origin;
 	float lambda = dot(delta, direction);
 	return delta.norm2() - lambda * lambda;
 }
 
-Vec3 DistToLine::gradient(const Vec3& pos) const
+Vec3 Dist2ToLine::gradient(const Vec3& pos) const
 {
 	Vec3 delta = pos - origin;
 	float lambda = dot(delta, direction);
 	return (delta - direction * lambda) * 2.f;
 }
 
-float DistToLine::ray_derivative(const Ray& ray, float t) const
+float Dist2ToLine::ray_derivative(const Ray& ray, float t) const
 {
 	Vec3 delta = ray.at(t) - origin;
 	return (dot(delta, ray.dir) - dot(ray.dir, direction) * dot(delta, direction)) * 2.f;

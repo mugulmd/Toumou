@@ -10,13 +10,13 @@ namespace toumou {
 /**
  * @brief Pinhole camera model.
  */
-struct Camera {
+class Camera {
+public:
 
-	/// Position in 3D space.
-	Vec3 location;
-
-	/// Local orthonormal coordinate system.
-	Vec3 forward, up, right;
+	/**
+	 * @brief TODO
+	 */
+	Camera(float sw, float fov, float zn, float zf);
 
 	/// Distance between the left and right side of the sensor (in metres).
 	float sensor_width;
@@ -26,23 +26,18 @@ struct Camera {
 
 	/// Depth range in which objects are visible (in metres).
 	float z_near, z_far;
+
+	/**
+	 * @brief TODO
+	 */
+	void move_to(const Vec3& pos);
+
+	// TODO: use a 4x4 transform matrix instead
+	Vec3 location;
+	Vec3 forward = Vec3(0, 0, -1);
+	Vec3 up = Vec3(0, 1, 0);
+	Vec3 right = Vec3(1, 0, 0);
 	
 };
-
-/**
- * @brief Initialize a camera.
- * @param[in] location Camera position in 3D space.
- * @param[in] forward Direction in which the camera is looking (must be normalized).
- * @param[in] up Camera orientation along the viewing axis (must be normalized).
- * @param[in] sensor_width Width of the camera sensor (in millimeters).
- * @param[in] field_of_view Angle of view (in degrees).
- * @param[in] z_near Start point of visibility range (in meters).
- * @param[in] z_far End point of visibility range (in meters).
- * @return A shared pointer to a camera model initialized with the given parameters.
- */
-std::shared_ptr<Camera> make_camera(const Vec3& location, 
-									const Vec3& forward, const Vec3& up, 
-									float sensor_width, float field_of_view, 
-									float z_near, float z_far);
 
 }

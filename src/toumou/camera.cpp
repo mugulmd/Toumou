@@ -3,21 +3,16 @@
 
 namespace toumou {
 
-std::shared_ptr<Camera> make_camera(const Vec3& location, 
-									const Vec3& forward, const Vec3& up, 
-									float sensor_width, float field_of_view, 
-									float z_near, float z_far)
+Camera::Camera(float sw, float fov, float zn, float zf) :
+	sensor_width(sw * 1e-3f),
+	field_of_view(fov * 3.14f / 180.f),
+	z_near(zn), z_far(zf)
 {
-	auto cam = std::make_shared<Camera>();
-	cam->location = location;
-	cam->forward = forward;
-	cam->up = up;
-	cam->right = cross(forward, up);
-	cam->sensor_width = sensor_width * 1e-3f;
-	cam->field_of_view = field_of_view * 3.14f / 180.f;
-	cam->z_near = z_near;
-	cam->z_far = z_far;
-	return cam;
+}
+
+void Camera::move_to(const Vec3& pos)
+{
+	location = pos;
 }
 
 }

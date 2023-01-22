@@ -7,6 +7,7 @@
 #include <toumou/image.hpp>
 #include <toumou/io.hpp>
 #include <toumou/light.hpp>
+#include <toumou/macros.hpp>
 #include <toumou/material.hpp>
 #include <toumou/rendering.hpp>
 #include <toumou/root_estimation.hpp>
