@@ -2,6 +2,8 @@
 
 #include <toumou/geometry.hpp>
 
+#include <Imath/ImathMatrix.h>
+
 
 namespace toumou {
 
@@ -33,30 +35,49 @@ public:
 	/**
 	 * @brief TODO
 	 */
-	Vec3 location() const;
+	void rotate_to(const Vec3& angles);
 
 	/**
 	 * @brief TODO
 	 */
-	Vec3 forward() const;
+	const Vec3& location() const;
 
 	/**
 	 * @brief TODO
 	 */
-	Vec3 up() const;
+	const Vec3& forward() const;
 
 	/**
 	 * @brief TODO
 	 */
-	Vec3 left() const;
+	const Vec3& up() const;
+
+	/**
+	 * @brief TODO
+	 */
+	const Vec3& left() const;
 
 private:
 
-	// TODO: use a 4x4 transform matrix instead
+	/// TODO
 	Vec3 m_location;
-	Vec3 m_forward = Vec3(0, 0, -1);
-	Vec3 m_up = Vec3(0, 1, 0);
-	Vec3 m_left = Vec3(-1, 0, 0);
+
+	/// TODO
+	Vec3 m_forward;
+
+	/// TODO
+	Vec3 m_up;
+
+	/// TODO
+	Vec3 m_left;
+
+	/// TODO
+	Imath::M44f m_transform;
+
+	/**
+	 * @brief TODO
+	 */
+	void set_transform(const Imath::M44f& tr);
 	
 };
 

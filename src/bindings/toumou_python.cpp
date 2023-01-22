@@ -57,7 +57,8 @@ PYBIND11_MODULE(toumou, m)
 
 	py::class_<Camera, std::shared_ptr<Camera>>(m, "Camera")
 		.def(PYTMKS(Camera, float, float, float, float))
-		.def("move_to", &Camera::move_to);
+		.def("move_to", &Camera::move_to)
+		.def("rotate_to", &Camera::rotate_to);
 
 	// Light
 
