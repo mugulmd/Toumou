@@ -2,8 +2,6 @@
 
 #include <toumou/geometry.hpp>
 
-#include <memory>
-
 
 namespace toumou {
 
@@ -32,11 +30,33 @@ public:
 	 */
 	void move_to(const Vec3& pos);
 
+	/**
+	 * @brief TODO
+	 */
+	Vec3 location() const;
+
+	/**
+	 * @brief TODO
+	 */
+	Vec3 forward() const;
+
+	/**
+	 * @brief TODO
+	 */
+	Vec3 up() const;
+
+	/**
+	 * @brief TODO
+	 */
+	Vec3 left() const;
+
+private:
+
 	// TODO: use a 4x4 transform matrix instead
-	Vec3 location;
-	Vec3 forward = Vec3(0, 0, -1);
-	Vec3 up = Vec3(0, 1, 0);
-	Vec3 right = Vec3(1, 0, 0);
+	Vec3 m_location;
+	Vec3 m_forward = Vec3(0, 0, -1);
+	Vec3 m_up = Vec3(0, 1, 0);
+	Vec3 m_left = Vec3(-1, 0, 0);
 	
 };
 

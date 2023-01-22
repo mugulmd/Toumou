@@ -20,11 +20,11 @@ namespace toumou {
 Ray RayTracer::cast(std::shared_ptr<Camera> camera, float x, float y, float aspect_ratio) const
 {
 	// Compute pixel position in 3D space
-	Vec3 pixel_pos = camera->location
-		+ camera->forward * camera->sensor_width / std::tan(.5f * camera->field_of_view)
-		+ camera->right * x * camera->sensor_width
-		+ camera->up * y * camera->sensor_width * aspect_ratio;
-	return trace(camera->location, pixel_pos);
+	Vec3 pixel_pos = camera->location()
+		+ camera->forward() * camera->sensor_width / std::tan(.5f * camera->field_of_view)
+		- camera->left() * x * camera->sensor_width
+		+ camera->up() * y * camera->sensor_width * aspect_ratio;
+	return trace(camera->location(), pixel_pos);
 }
 
 Ray RayTracer::cast(const Vec3& pos, const Vec3& normal, float theta, float phi) const
@@ -32,7 +32,7 @@ Ray RayTracer::cast(const Vec3& pos, const Vec3& normal, float theta, float phi)
 	// Local coordinate system
 	Vec3 tz = (std::abs(normal.x) > std::abs(normal.y)) ? Vec3(normal.z, 0, -normal.x) : Vec3(0, -normal.z, normal.y);
 	tz.normalize();
-	Vec3 tx = cross(normal, tz);
+	Vec3 tx = normal.cross(tz);
 	Vec3 dir = tx * std::sin(theta) * std::cos(phi) + normal * std::cos(theta) + tz * std::sin(theta) * std::sin(phi);
 	return Ray(pos, dir);
 }
@@ -90,7 +90,7 @@ Color RayTracer::direct_lighting(std::shared_ptr<Surface> surface, const Scene& 
 		}
 
 		// Add lighting contribution
-		float diffuse = std::max(0.f, dot(normal, dir_light)) * (surface->material).albedo / 3.14f;
+		float diffuse = std::max(0.f, normal.dot(dir_light)) * (surface->material).albedo / 3.14f;
 		c_out = (surface->material).base_color * (diffuse * intensity);
 	}
 
@@ -133,7 +133,7 @@ Color RayTracer::indirect_lighting(std::shared_ptr<Surface> surface, const Scene
 		Color c_indirect = indirect_lighting(surf_hit, scene, p_hit, n_hit, n_bounce - 1);
 
 		// Add lighting contribution
-		float diffuse = std::max(0.f, dot(normal, ray_bounce.dir)) * (surface->material).albedo / 3.14f;
+		float diffuse = std::max(0.f, normal.dot(ray_bounce.dir)) * (surface->material).albedo / 3.14f;
 		c_out += (c_direct + c_indirect) * diffuse / static_cast<float>(rays_per_bounce);
 	}
 
@@ -211,9 +211,9 @@ void RayTracer::render(const Scene& scene, std::function<void(int)> progress_cal
 				c_sample += indirect_lighting(surface, scene, pos, normal, max_bounce);
 
 				// Add sample contribution
-				c_sample.r = std::min(c_sample.r, 1.f);
-				c_sample.g = std::min(c_sample.g, 1.f);
-				c_sample.b = std::min(c_sample.b, 1.f);
+				c_sample.x = std::min(c_sample.x, 1.f);
+				c_sample.y = std::min(c_sample.y, 1.f);
+				c_sample.z = std::min(c_sample.z, 1.f);
 				c_out += c_sample / static_cast<float>(pixel_sampling);
 			}
 

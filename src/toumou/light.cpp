@@ -1,4 +1,5 @@
 #include <toumou/light.hpp>
+#include <toumou/constants.hpp>
 
 #include <limits>
 
@@ -19,8 +20,9 @@ PointLight::PointLight(const Color& _color, float _brightness, const Vec3& _loca
 void PointLight::sample(const Vec3& pos, Vec3& dir, float& dist, float& intensity) const
 {
 	dir = (location - pos).normalized();
-	dist = distance(pos, location);
-	intensity = brightness / (dist * dist);
+	dist = (pos - location).length();
+	float dist2 = std::max(dist * dist, eps_div_by_zero);
+	intensity = brightness / dist2;
 }
 
 DirectionalLight::DirectionalLight(const Color& _color, float _brightness, const Vec3& _direction) : 

@@ -1,71 +1,14 @@
 #pragma once
 
+#include <Imath/ImathVec.h>
+
 
 namespace toumou {
 
 /**
  * @brief 3D vector with float precision.
  */
-struct Vec3 {
-
-	/// (X, Y, Z) coordinates.
-	float x, y, z;
-
-	/// Default constructor, initialize all coordinates to 0.
-	Vec3();
-	
-	/// Utility constructor with coordinates initialization.
-	Vec3(float _x, float _y, float _z);
-
-	/// Utility operators for calculus.
-	bool operator==(const Vec3& other) const;
-	Vec3 operator+(const Vec3& other) const;
-	Vec3 operator-(const Vec3& other) const;
-	Vec3 operator*(const float f) const;
-	Vec3 operator/(const float f) const;
-	Vec3& operator=(const Vec3& other);
-	Vec3& operator+=(const Vec3& other);
-	Vec3& operator-=(const Vec3& other);
-	Vec3& operator*=(const float f);
-	Vec3& operator/=(const float f);
-
-	/// Compute the squared L2-norm of this vector.
-	float norm2() const;
-
-	/// Compute the L2-norm of this vector.
-	float norm() const;
-
-	/// In-place vector normalization.
-	void normalize();
-
-	/// Compute a normalized version of this vector.
-	Vec3 normalized() const;
-
-};
-
-/**
- * @brief Compute the Euclidean distance between two vectors.
- * @param[in] lhs Left-hand-side vector.
- * @param[in] rhs Right-hand-side vector.
- * @return The L2-norm of difference between lhs and rhs.
- */
-float distance(const Vec3& lhs, const Vec3& rhs);
-
-/**
- * @brief Compute the dot product between two vectors.
- * @param[in] lhs Left-hand-side vector.
- * @param[in] rhs Right-hand-side vector.
- * @return The dot product between lhs and rhs.
- */
-float dot(const Vec3& lhs, const Vec3& rhs);
-
-/**
- * @brief Compute the cross product between two vectors.
- * @param[in] lhs Left-hand-side vector.
- * @param[in] rhs Right-hand-side vector.
- * @return The cross product between lhs and rhs.
- */
-Vec3 cross(const Vec3& lhs, const Vec3& rhs);
+using Vec3 = Imath::V3f;
 
 /**
  * @brief Half-line in 3D space.

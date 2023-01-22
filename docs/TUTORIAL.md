@@ -14,10 +14,10 @@ import toumou as tm
 print(tm.__doc__)
 ```
 
-If you get an `ImportError: DLL load failed while importing toumou`, you might need to provide the path to the OpenEXR, IMath and zlib DLLs to Python:
+If you get an `ImportError: DLL load failed while importing toumou`, you might need to provide the path to the IMath, OpenEXR and zlib DLLs to Python:
 ```python
 import os
-os.add_dll_directory('/path/to/OpenEXR/DLLs')
 os.add_dll_directory('/path/to/Imath/DLLs')
+os.add_dll_directory('/path/to/OpenEXR/DLLs')
 os.add_dll_directory('/path/to/zlib/DLLs')
 ```

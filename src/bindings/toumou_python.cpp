@@ -28,9 +28,9 @@ PYBIND11_MODULE(toumou, m)
 
 	py::class_<Color>(m, "Color")
 		.def(py::init<float, float, float>())
-		.def_readwrite("r", &Color::r)
-		.def_readwrite("g", &Color::g)
-		.def_readwrite("b", &Color::b);
+		.def_readwrite("r", &Color::x)
+		.def_readwrite("g", &Color::y)
+		.def_readwrite("b", &Color::z);
 
 	// Geometry
 
@@ -39,19 +39,18 @@ PYBIND11_MODULE(toumou, m)
 		.def_readwrite("x", &Vec3::x)
 		.def_readwrite("y", &Vec3::y)
 		.def_readwrite("z", &Vec3::z)
-		.def("norm2", &Vec3::norm2)
-		.def("norm", &Vec3::norm)
+		.def("norm2", &Vec3::length2)
+		.def("norm", &Vec3::length)
 		.def("normalize", &Vec3::normalize)
-		.def("normalized", &Vec3::normalized);
+		.def("normalized", &Vec3::normalized)
+		.def("dot", &Vec3::dot)
+		.def("cross", &Vec3::cross);
 
 	py::class_<Ray>(m, "Ray")
 		.def_readonly("origin", &Ray::origin)
 		.def_readonly("dir", &Ray::dir)
 		.def("at", &Ray::at);
 
-	m.def("distance", &distance);
-	m.def("dot", &dot);
-	m.def("cross", &cross);
 	m.def("trace", &trace);
 
 	// Camera

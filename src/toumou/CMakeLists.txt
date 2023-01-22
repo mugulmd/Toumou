@@ -36,9 +36,11 @@ PUBLIC
 )
 
 target_link_libraries(
-toumou_engine 
+toumou_engine
+PUBLIC
+    Imath::Imath
 PRIVATE
-    spdlog::spdlog 
+    spdlog::spdlog
     OpenEXR::OpenEXR
 )
 

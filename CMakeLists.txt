@@ -21,14 +21,17 @@ set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
 # Dependencies
 set(TOUMOU_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/include)
 
-# pybind11
-find_package(pybind11 REQUIRED)
-
 # spdlog
 find_package(spdlog REQUIRED)
 
+# Imath
+find_package(Imath REQUIRED)
+
 # OpenEXR
 find_package(OpenEXR REQUIRED)
+
+# pybind11
+find_package(pybind11 REQUIRED)
 
 
 # Builds

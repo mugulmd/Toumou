@@ -72,7 +72,7 @@ Dist2ToPoint::Dist2ToPoint(const Vec3& _center) :
 
 float Dist2ToPoint::value(const Vec3& pos) const
 {
-	return (pos - center).norm2();
+	return (pos - center).length2();
 }
 
 Vec3 Dist2ToPoint::gradient(const Vec3& pos) const
@@ -82,7 +82,7 @@ Vec3 Dist2ToPoint::gradient(const Vec3& pos) const
 
 float Dist2ToPoint::ray_derivative(const Ray& ray, float t) const
 {
-	return 2.f * (t + dot(ray.dir, ray.origin - center));
+	return 2.f * (t + ray.dir.dot(ray.origin - center));
 }
 
 Dist2ToLine::Dist2ToLine(const Vec3& _origin, const Vec3& _direction) : 
@@ -94,21 +94,21 @@ Dist2ToLine::Dist2ToLine(const Vec3& _origin, const Vec3& _direction) :
 float Dist2ToLine::value(const Vec3& pos) const
 {
 	Vec3 delta = pos - origin;
-	float lambda = dot(delta, direction);
-	return delta.norm2() - lambda * lambda;
+	float lambda = delta.dot(direction);
+	return delta.length2() - lambda * lambda;
 }
 
 Vec3 Dist2ToLine::gradient(const Vec3& pos) const
 {
 	Vec3 delta = pos - origin;
-	float lambda = dot(delta, direction);
+	float lambda = delta.dot(direction);
 	return (delta - direction * lambda) * 2.f;
 }
 
 float Dist2ToLine::ray_derivative(const Ray& ray, float t) const
 {
 	Vec3 delta = ray.at(t) - origin;
-	return (dot(delta, ray.dir) - dot(ray.dir, direction) * dot(delta, direction)) * 2.f;
+	return (delta.dot(ray.dir) - ray.dir.dot(direction) * delta.dot(direction)) * 2.f;
 }
 
 SignedDistToPlane::SignedDistToPlane(const Vec3& _origin, const Vec3& _normal) :
@@ -119,7 +119,7 @@ SignedDistToPlane::SignedDistToPlane(const Vec3& _origin, const Vec3& _normal) :
 
 float SignedDistToPlane::value(const Vec3& pos) const
 {
-	return dot(pos - origin, normal);
+	return normal.dot(pos - origin);
 }
 
 Vec3 SignedDistToPlane::gradient(const Vec3& pos) const
@@ -129,7 +129,7 @@ Vec3 SignedDistToPlane::gradient(const Vec3& pos) const
 
 float SignedDistToPlane::ray_derivative(const Ray& ray, float t) const
 {
-	return dot(ray.dir, normal);
+	return ray.dir.dot(normal);
 }
 
 Remapping::Remapping(std::shared_ptr<Field> _field) : 

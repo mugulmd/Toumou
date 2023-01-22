@@ -37,7 +37,7 @@ void write_EXR(const RayTracer& rt, const std::string& path)
 		"Color.R",
 		Slice(
 			IMF::FLOAT,
-			(char*) &(pixels_color->r),
+			(char*) &(pixels_color->x),
 			sizeof(Color),
 			sizeof(Color) * width
 		)
@@ -46,7 +46,7 @@ void write_EXR(const RayTracer& rt, const std::string& path)
 		"Color.G",
 		Slice(
 			IMF::FLOAT,
-			(char*) &(pixels_color->g),
+			(char*) &(pixels_color->y),
 			sizeof(Color),
 			sizeof(Color) * width
 		)
@@ -55,7 +55,7 @@ void write_EXR(const RayTracer& rt, const std::string& path)
 		"Color.B",
 		Slice(
 			IMF::FLOAT,
-			(char*) &(pixels_color->b),
+			(char*) &(pixels_color->z),
 			sizeof(Color),
 			sizeof(Color) * width
 		)
