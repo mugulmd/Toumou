@@ -22,10 +22,10 @@ void Camera::move_to(const Vec3& pos)
 
 void Camera::rotate_to(const Vec3& angles)
 {
-	Vec3 current_angles;
-	Imath::extractEulerXYZ(m_transform, current_angles);
+	Vec3 rot;
+	Imath::extractEulerXYZ(m_transform, rot);
 	Imath::M44f tr = m_transform;
-	tr.rotate(angles - current_angles);
+	tr.rotate(angles * (3.14f / 180.f) - rot);
 	set_transform(tr);
 }
 
@@ -52,10 +52,10 @@ const Vec3& Camera::left() const
 void Camera::set_transform(const Imath::M44f& tr)
 {
 	m_transform = tr;
-	tr.multVecMatrix(m_location, m_location);
-	tr.multDirMatrix(m_forward, m_forward);
-	tr.multDirMatrix(m_up, m_up);
-	tr.multDirMatrix(m_left, m_left);
+	tr.multVecMatrix(Vec3(0, 0, 0), m_location);
+	tr.multDirMatrix(Vec3(0, 0, -1), m_forward);
+	tr.multDirMatrix(Vec3(0, 1, 0), m_up);
+	tr.multDirMatrix(Vec3(-1, 0, 0), m_left);
 }
 
 }

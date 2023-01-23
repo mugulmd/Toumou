@@ -1,6 +1,11 @@
 #pragma once
 
 #include <toumou/color.hpp>
+#include <toumou/field.hpp>
+#include <toumou/geometry.hpp>
+#include <toumou/macros.hpp>
+
+#include <memory>
 
 
 namespace toumou {
@@ -10,11 +15,22 @@ namespace toumou {
  */
 struct Material {
 
-	/// Material color.
-	Color base_color = Color(.3f, .3f, .3f);
+	/**
+	 * @brief TODO
+	 */
+	Color color_at(const Vec3& pos) const;
 
 	/// Amount of light transmitted by diffuse lighting.
 	float albedo = .18f;
+
+	/// TODO
+	std::shared_ptr<Field> red = tmks(Constant, 1.f);
+
+	/// TODO
+	std::shared_ptr<Field> green = tmks(Constant, 1.f);
+
+	/// TODO
+	std::shared_ptr<Field> blue = tmks(Constant, 1.f);
 
 };
 

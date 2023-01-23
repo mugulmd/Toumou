@@ -69,7 +69,7 @@ std::shared_ptr<Surface> RayTracer::hit(const Ray& ray, const Scene& scene, floa
 
 Color RayTracer::direct_lighting(std::shared_ptr<Surface> surface, const Scene& scene, const Vec3& pos, const Vec3& normal) const
 {
-	Color c_out;
+	Color c_out(0);
 
 	// Go through all light sources
 	for (auto light : scene.lights()) {
@@ -91,7 +91,7 @@ Color RayTracer::direct_lighting(std::shared_ptr<Surface> surface, const Scene& 
 
 		// Add lighting contribution
 		float diffuse = std::max(0.f, normal.dot(dir_light)) * (surface->material).albedo / 3.14f;
-		c_out = (surface->material).base_color * (diffuse * intensity);
+		c_out = (surface->material).color_at(pos) * (diffuse * intensity);
 	}
 
 	return c_out;
@@ -99,7 +99,7 @@ Color RayTracer::direct_lighting(std::shared_ptr<Surface> surface, const Scene& 
 
 Color RayTracer::indirect_lighting(std::shared_ptr<Surface> surface, const Scene& scene, const Vec3& pos, const Vec3& normal, int n_bounce) const
 {
-	Color c_out;
+	Color c_out(0);
 
 	// End of recursion
 	if (n_bounce == 0) {
@@ -164,9 +164,9 @@ void RayTracer::render(const Scene& scene, std::function<void(int)> progress_cal
 	for (int j = 0; j < width; j++) {
 		for (int i = 0; i < height; i++) {
 			// Pixel color (to compute)
-			Color c_out;
+			Color c_out(0);
 
-			Vec3 n_out;
+			Vec3 n_out(0);
 			float depth_min = (scene.camera())->z_far;
 			float uid_out = 0.f;
 
@@ -202,7 +202,7 @@ void RayTracer::render(const Scene& scene, std::function<void(int)> progress_cal
 				Vec3 pos = ray.at(t);
 
 				// Surface color at hit point (to compute)
-				Color c_sample;
+				Color c_sample(0);
 
 				// Direct lighting
 				c_sample += direct_lighting(surface, scene, pos, normal);

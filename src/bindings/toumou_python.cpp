@@ -77,6 +77,9 @@ PYBIND11_MODULE(toumou, m)
 	py::class_<Field, std::shared_ptr<Field>>(m, "Field")
 		.def("value", &Field::value);
 
+	py::class_<Constant, std::shared_ptr<Constant>, Field>(m, "Constant")
+		.def(PYTMKS(Constant, float));
+
 	py::class_<Fusion, std::shared_ptr<Fusion>, Field>(m, "Fusion")
 		.def(PYTMKS(Fusion))
 		.def("add", &Fusion::add);
@@ -102,7 +105,9 @@ PYBIND11_MODULE(toumou, m)
 	// Material
 
 	py::class_<Material>(m, "Material")
-		.def_readwrite("base_color", &Material::base_color)
+		.def_readwrite("red", &Material::red)
+		.def_readwrite("green", &Material::green)
+		.def_readwrite("blue", &Material::blue)
 		.def_readwrite("albedo", &Material::albedo);
 
 	// Root estimation

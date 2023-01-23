@@ -1,3 +1,4 @@
 build/
 docs/doxygen/html/
 docs/sphinx/source/generated/
+__pycache__/

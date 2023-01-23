@@ -192,4 +192,25 @@ float Exponential::derivative(float t) const
 	return std::exp(t * factor) * factor;
 }
 
+Constant::Constant(float cst) :
+	Field(),
+	m_cst(cst)
+{
+}
+
+float Constant::value(const Vec3& pos) const
+{
+	return m_cst;
+}
+
+Vec3 Constant::gradient(const Vec3& pos) const
+{
+	return Vec3();
+}
+
+float Constant::ray_derivative(const Ray& ray, float t) const
+{
+	return 0.0f;
+}
+
 }

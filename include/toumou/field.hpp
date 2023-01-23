@@ -39,6 +39,39 @@ public:
 /**
  * @brief TODO
  */
+class Constant : public Field {
+public:
+
+	/**
+	 * @brief TODO
+	 */
+	Constant(float cst);
+
+	/**
+	 * @brief TODO
+	 */
+	float value(const Vec3& pos) const override;
+
+	/**
+	 * @brief TODO
+	 */
+	Vec3 gradient(const Vec3& pos) const override;
+
+	/**
+	 * @brief TODO
+	 */
+	float ray_derivative(const Ray& ray, float t) const override;
+
+private:
+
+	/// TODO
+	float m_cst;
+
+};
+
+/**
+ * @brief TODO
+ */
 class Fusion : public Field {
 public:
 
