@@ -24,14 +24,6 @@ PYBIND11_MODULE(toumou, m)
 {
 	m.doc() = "Python bindings for Toumou";
 
-	// Color
-
-	py::class_<Color>(m, "Color")
-		.def(py::init<float, float, float>())
-		.def_readwrite("r", &Color::x)
-		.def_readwrite("g", &Color::y)
-		.def_readwrite("b", &Color::z);
-
 	// Geometry
 
 	py::class_<Vec3>(m, "Vec3")
@@ -52,6 +44,22 @@ PYBIND11_MODULE(toumou, m)
 		.def("at", &Ray::at);
 
 	m.def("trace", &trace);
+
+	// Color
+
+	py::class_<Color>(m, "Color")
+		.def(py::init<float, float, float>())
+		.def_readwrite("r", &Color::x)
+		.def_readwrite("g", &Color::y)
+		.def_readwrite("b", &Color::z)
+		.def_readonly_static("BLACK", &BLACK)
+		.def_readonly_static("RED", &RED)
+		.def_readonly_static("GREEN", &GREEN)
+		.def_readonly_static("BLUE", &BLUE)
+		.def_readonly_static("YELLOW", &YELLOW)
+		.def_readonly_static("MAGENTA", &MAGENTA)
+		.def_readonly_static("CYAN", &CYAN)
+		.def_readonly_static("WHITE", &WHITE);
 
 	// Camera
 
