@@ -242,4 +242,29 @@ public:
 
 };
 
+/**
+ * @brief TODO
+ */
+class Smoothstep : public Remapping {
+public:
+
+	/**
+	 * @brief TODO
+	 */
+	Smoothstep(std::shared_ptr<Field> _field, float in_min, float in_max);
+
+	float remap(float t) const override;
+
+	float derivative(float t) const;
+
+private:
+
+	/// TODO
+	float m_in_min;
+
+	/// TODO
+	float m_in_max;
+
+};
+
 }

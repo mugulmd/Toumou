@@ -110,6 +110,9 @@ PYBIND11_MODULE(toumou, m)
 	py::class_<Exponential, std::shared_ptr<Exponential>, Remapping>(m, "Exponential")
 		.def(PYTMKS(Exponential, std::shared_ptr<Field>, float));
 
+	py::class_<Smoothstep, std::shared_ptr<Smoothstep>, Remapping>(m, "Smoothstep")
+		.def(PYTMKS(Smoothstep, std::shared_ptr<Field>, float, float));
+
 	// Material
 
 	py::class_<Material>(m, "Material")

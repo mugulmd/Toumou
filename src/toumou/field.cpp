@@ -213,4 +213,35 @@ float Constant::ray_derivative(const Ray& ray, float t) const
 	return 0.0f;
 }
 
+Smoothstep::Smoothstep(std::shared_ptr<Field> _field, float in_min, float in_max) :
+	Remapping(_field),
+	m_in_min(in_min), m_in_max(in_max)
+{
+}
+
+float Smoothstep::remap(float t) const
+{
+	// Clamping
+	if (t < m_in_min) {
+		return 0.f;
+	}
+	else if (t > m_in_max) {
+		return 1.f;
+	}
+
+	// Cubic Hermite interpolation
+	float u = (t - m_in_min) / (m_in_max - m_in_min);
+	return u * u * (3.f - 2.f * u);
+}
+
+float Smoothstep::derivative(float t) const
+{
+	if (t < m_in_min || t > m_in_max) {
+		return 0.f;
+	}
+
+	float u = (t - m_in_min) / (m_in_max - m_in_min);
+	return 6.f * u * (1.f - u);
+}
+
 }
