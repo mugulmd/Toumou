@@ -15,13 +15,18 @@ namespace toumou {
  */
 struct Material {
 
+	/// Amount of light transmitted by diffuse lighting.
+	float albedo = .18f;
+
 	/**
 	 * @brief TODO
 	 */
 	Color color_at(const Vec3& pos) const;
 
-	/// Amount of light transmitted by diffuse lighting.
-	float albedo = .18f;
+	/**
+	 * @brief TODO
+	 */
+	void set_solid_color(const Color& color);
 
 	/// TODO
 	std::shared_ptr<Field> red = tmks(Constant, 1.f);

@@ -12,4 +12,11 @@ Color Material::color_at(const Vec3& pos) const
 	);
 }
 
+void Material::set_solid_color(const Color& color)
+{
+	red = tmks(Constant, color.x);
+	green = tmks(Constant, color.y);
+	blue = tmks(Constant, color.z);
+}
+
 }

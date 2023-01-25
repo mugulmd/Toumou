@@ -108,7 +108,8 @@ PYBIND11_MODULE(toumou, m)
 		.def_readwrite("red", &Material::red)
 		.def_readwrite("green", &Material::green)
 		.def_readwrite("blue", &Material::blue)
-		.def_readwrite("albedo", &Material::albedo);
+		.def_readwrite("albedo", &Material::albedo)
+		.def("set_colid_color", &Material::set_solid_color);
 
 	// Root estimation
 
