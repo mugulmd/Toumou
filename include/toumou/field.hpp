@@ -4,6 +4,7 @@
 
 #include <memory>
 #include <unordered_map>
+#include <vector>
 
 
 namespace toumou {
@@ -264,6 +265,32 @@ private:
 
 	/// TODO
 	float m_in_max;
+
+};
+
+/**
+ * @brief TODO
+ */
+class CellNoise : public Field {
+public:
+
+	/**
+	 * @brief TODO
+	 */
+	CellNoise(float grid_size, int grid_resolution);
+
+	float value(const Vec3& pos) const override;
+
+private:
+
+	/// TODO
+	float m_grid_size;
+
+	/// TODO
+	int m_grid_resolution;
+
+	/// TODO
+	std::vector<Vec3> m_points;
 
 };
 

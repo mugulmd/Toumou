@@ -1,8 +1,12 @@
 #include <toumou/field.hpp>
 #include <toumou/constants.hpp>
 
+#include <spdlog/spdlog.h>
+
 #include <algorithm>
 #include <cmath>
+#include <random>
+#include <limits>
 
 
 namespace toumou {
@@ -242,6 +246,61 @@ float Smoothstep::derivative(float t) const
 
 	float u = (t - m_in_min) / (m_in_max - m_in_min);
 	return 6.f * u * (1.f - u);
+}
+
+CellNoise::CellNoise(float grid_size, int grid_resolution) :
+	Field(),
+	m_grid_size(grid_size), m_grid_resolution(grid_resolution)
+{
+	m_points.resize(m_grid_resolution * m_grid_resolution * m_grid_resolution);
+
+	std::random_device rd;
+	std::mt19937 gen = std::mt19937(rd());
+	std::uniform_real_distribution<float> dis(0.f, 1.f);
+
+	for (std::size_t i = 0; i < m_points.size(); ++i) {
+		m_points[i].x = dis(gen);
+		m_points[i].y = dis(gen);
+		m_points[i].z = dis(gen);
+	}
+}
+
+float CellNoise::value(const Vec3& pos) const
+{
+	const float voxel_size = m_grid_size / static_cast<float>(m_grid_resolution);
+
+	Vec3 pos_in_grid = pos / voxel_size;
+	const int pos_i = static_cast<int>(std::floor(pos_in_grid.x));
+	const int pos_j = static_cast<int>(std::floor(pos_in_grid.y));
+	const int pos_k = static_cast<int>(std::floor(pos_in_grid.z));
+	
+	float min_dist = std::numeric_limits<float>::max();
+	for (int di = -1; di <= 1; ++di) {
+		const int corner_i = pos_i + di;
+		const int i = ((corner_i % m_grid_resolution) + m_grid_resolution) % m_grid_resolution;
+
+		for (int dj = -1; dj <= 1; ++dj) {
+			const int corner_j = pos_j + dj;
+			const int j = ((corner_j % m_grid_resolution) + m_grid_resolution) % m_grid_resolution;
+
+			for (int dk = -1; dk <= 1; ++dk) {
+				const int corner_k = pos_k + dk;
+				const int k = ((corner_k % m_grid_resolution) + m_grid_resolution) % m_grid_resolution;
+
+				Vec3 corner(static_cast<float>(corner_i), static_cast<float>(corner_j), static_cast<float>(corner_k));
+
+				const int idx = i + (j + k * m_grid_resolution) * m_grid_resolution;
+				Vec3 point = (corner + m_points[idx]) * voxel_size;
+
+				const float dist = (pos - point).length();
+				min_dist = std::min(min_dist, dist);
+			}
+		}
+	}
+
+	min_dist /= voxel_size * std::sqrt(3.f);
+
+	return min_dist;
 }
 
 }

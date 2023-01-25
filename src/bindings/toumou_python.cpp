@@ -113,6 +113,9 @@ PYBIND11_MODULE(toumou, m)
 	py::class_<Smoothstep, std::shared_ptr<Smoothstep>, Remapping>(m, "Smoothstep")
 		.def(PYTMKS(Smoothstep, std::shared_ptr<Field>, float, float));
 
+	py::class_<CellNoise, std::shared_ptr<CellNoise>, Field>(m, "CellNoise")
+		.def(PYTMKS(CellNoise, float, int));
+
 	// Material
 
 	py::class_<Material>(m, "Material")
@@ -120,7 +123,7 @@ PYBIND11_MODULE(toumou, m)
 		.def_readwrite("green", &Material::green)
 		.def_readwrite("blue", &Material::blue)
 		.def_readwrite("albedo", &Material::albedo)
-		.def("set_colid_color", &Material::set_solid_color);
+		.def("set_solid_color", &Material::set_solid_color);
 
 	// Root estimation
 
