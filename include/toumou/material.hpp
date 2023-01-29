@@ -18,6 +18,12 @@ struct Material {
 	/// Amount of light transmitted by diffuse lighting.
 	float albedo = .18f;
 
+	/// TODO
+	float roughness = .5f;
+
+	/// TODO
+	float ior = 1.45f;
+
 	/**
 	 * @brief TODO
 	 */

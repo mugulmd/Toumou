@@ -4,6 +4,7 @@
 #include <toumou/image.hpp>
 #include <toumou/geometry.hpp>
 #include <toumou/color.hpp>
+#include <toumou/material.hpp>
 
 #include <functional>
 #include <memory>
@@ -13,7 +14,7 @@
 namespace toumou {
 
 /**
- * @brief Ray tracing engine. Currently supports only diffuse lighting (direct and indirect).
+ * @brief Ray tracing engine.
  */
 class RayTracer {
 public:
@@ -72,11 +73,13 @@ private:
 	std::shared_ptr<Surface> hit(const Ray& ray, const Scene& scene, float& t, Vec3& normal) const;
 
 	/// Compute direct lighting at a given surface point.
-	Color direct_lighting(std::shared_ptr<Surface> surface, const Scene& scene, const Vec3& pos, const Vec3& normal) const;
+	Color direct_lighting(std::shared_ptr<Surface> surface, const Scene& scene, const Vec3& pos, const Vec3& normal, const Vec3& dir_view) const;
 
 	/// Compute indirect lighting at a given surface point.
-	Color indirect_lighting(std::shared_ptr<Surface> surface, const Scene& scene, const Vec3& pos, const Vec3& normal, int n_bounce) const;
+	Color indirect_lighting(std::shared_ptr<Surface> surface, const Scene& scene, const Vec3& pos, const Vec3& normal, const Vec3& dir_view, int n_bounce) const;
 
+	/// TODO
+	float brdf(const Material& mat, const Vec3& dir_light, const Vec3& dir_view, const Vec3& normal) const;
 
 };
 

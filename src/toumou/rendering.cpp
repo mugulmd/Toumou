@@ -8,10 +8,10 @@
 
 namespace toumou {
 
-	RayTracer::RayTracer(int w, int h, int sampling, int bounce, int split) :
-		image(w, h), normal_map(w, h), depth_map(w, h), index_map(w, h),
-	pixel_sampling(sampling), max_bounce(bounce), rays_per_bounce(split),
-	m_dis(0.f, 1.f)
+RayTracer::RayTracer(int w, int h, int sampling, int bounce, int split) :
+	image(w, h), normal_map(w, h), depth_map(w, h), index_map(w, h),
+pixel_sampling(sampling), max_bounce(bounce), rays_per_bounce(split),
+m_dis(0.f, 1.f)
 {
 	std::random_device rd;
 	m_gen = std::mt19937(rd());
@@ -42,7 +42,7 @@ std::shared_ptr<Surface> RayTracer::hit(const Ray& ray, const Scene& scene, floa
 	std::shared_ptr<Surface> surface = nullptr;
 
 	// Go through all surfaces
-	for (auto s : scene.surfaces()) {
+	for (const auto& s : scene.surfaces()) {
 
 		// Check if ray intersects surface
 		float t_local = 0.f;
@@ -67,12 +67,12 @@ std::shared_ptr<Surface> RayTracer::hit(const Ray& ray, const Scene& scene, floa
 	return surface;
 }
 
-Color RayTracer::direct_lighting(std::shared_ptr<Surface> surface, const Scene& scene, const Vec3& pos, const Vec3& normal) const
+Color RayTracer::direct_lighting(std::shared_ptr<Surface> surface, const Scene& scene, const Vec3& pos, const Vec3& normal, const Vec3& dir_view) const
 {
 	Color c_out(0);
 
 	// Go through all light sources
-	for (auto light : scene.lights()) {
+	for (const auto& light : scene.lights()) {
 
 		// Retrieve light contribution
 		Vec3 dir_light;
@@ -89,15 +89,19 @@ Color RayTracer::direct_lighting(std::shared_ptr<Surface> surface, const Scene& 
 			continue;
 		}
 
-		// Add lighting contribution
+		// Diffuse
 		float diffuse = std::max(0.f, normal.dot(dir_light)) * (surface->material).albedo / 3.14f;
-		c_out = (surface->material).color_at(pos) * (diffuse * intensity);
+		c_out += (surface->material).color_at(pos) * (diffuse * intensity);
+
+		// Specular
+		float specular = brdf(surface->material, dir_light, dir_view, normal);
+		c_out += light->color * (specular * intensity);
 	}
 
 	return c_out;
 }
 
-Color RayTracer::indirect_lighting(std::shared_ptr<Surface> surface, const Scene& scene, const Vec3& pos, const Vec3& normal, int n_bounce) const
+Color RayTracer::indirect_lighting(std::shared_ptr<Surface> surface, const Scene& scene, const Vec3& pos, const Vec3& normal, const Vec3& dir_view, int n_bounce) const
 {
 	Color c_out(0);
 
@@ -125,19 +129,82 @@ Color RayTracer::indirect_lighting(std::shared_ptr<Surface> surface, const Scene
 		}
 
 		Vec3 p_hit = ray_bounce.at(t_hit);
+		Vec3 dir_view_hit = ray_bounce.dir * -1;
 
 		// Direct lighting
-		Color c_direct = direct_lighting(surf_hit, scene, p_hit, n_hit);
+		Color c_direct = direct_lighting(surf_hit, scene, p_hit, n_hit, dir_view_hit);
 
 		// Recursive indirect lighting
-		Color c_indirect = indirect_lighting(surf_hit, scene, p_hit, n_hit, n_bounce - 1);
+		Color c_indirect = indirect_lighting(surf_hit, scene, p_hit, n_hit, dir_view_hit, n_bounce - 1);
 
-		// Add lighting contribution
+		// Diffuse
 		float diffuse = std::max(0.f, normal.dot(ray_bounce.dir)) * (surface->material).albedo / 3.14f;
-		c_out += (c_direct + c_indirect) * diffuse / static_cast<float>(rays_per_bounce);
+		float intensity = (c_direct + c_indirect).dot(Vec3(1)) / 6.f;
+		c_out += (surface->material).color_at(pos) * intensity * diffuse / static_cast<float>(rays_per_bounce);
+	}
+
+	for (int i = 0; i < rays_per_bounce; i++) {
+
+		// Generate ray in random direction using GGX PDF
+		float r1 = m_dis(m_gen);
+		float theta = std::atan(surface->material.roughness * std::sqrt(r1 / (1.f - r1)));
+		float r2 = m_dis(m_gen);
+		float phi = r2 * 6.18f;
+		Vec3 dir_reflected = 2.f * dir_view.dot(normal)* normal - dir_view;
+		Ray ray_bounce = cast(pos, dir_reflected, theta, phi);
+
+		// Find first surface hit
+		float t_hit = 0.f;
+		Vec3 n_hit;
+		auto surf_hit = hit(ray_bounce, scene, t_hit, n_hit);
+		if (!surf_hit) {
+			continue;
+		}
+
+		Vec3 p_hit = ray_bounce.at(t_hit);
+		Vec3 dir_view_hit = ray_bounce.dir * -1;
+
+		// Direct lighting
+		Color c_direct = direct_lighting(surf_hit, scene, p_hit, n_hit, dir_view_hit);
+
+		// Recursive indirect lighting
+		Color c_indirect = indirect_lighting(surf_hit, scene, p_hit, n_hit, dir_view_hit, n_bounce - 1);
+
+		// Specular
+		float specular = brdf(surface->material, ray_bounce.dir, dir_view, normal);
+		c_out += (c_direct + c_indirect) * specular / static_cast<float>(rays_per_bounce);
 	}
 
 	return c_out;
+}
+
+float RayTracer::brdf(const Material& mat, const Vec3& dir_light, const Vec3& dir_view, const Vec3& normal) const
+{
+	// Half-angle vector
+	const Vec3 h = (dir_light + dir_view).normalized();
+
+	const float vn = dir_view.dot(normal);
+	const float ln = dir_light.dot(normal);
+	const float hn = h.dot(normal);
+	const float vh = dir_view.dot(h);
+
+	// GGX normal distribution function
+	const float a2 = mat.roughness * mat.roughness;
+	const float d = (a2 - 1.f) * hn * hn + 1.f;
+	const float ggx = a2 / (d * d * 3.14f);
+
+	// Fresnel factor - Schlick's approximation
+	const float r0_sqrt = (1.f - mat.ior) / (1.f + mat.ior);
+	const float r0 = r0_sqrt * r0_sqrt;
+	const float fresnel = r0 + (1.f - r0) * std::pow(1.f - vh, 5.f);
+
+	// Geometric attenuation
+	const float shadowing_view = 2.f * hn * vn / vh;
+	const float shadowing_light = 2.f * hn * ln / vh;
+	const float shadowing = std::min(1.f, std::min(shadowing_view, shadowing_light));
+
+	// Cook-Torrance model
+	return (ggx * fresnel * shadowing) / (4.f * dir_view.dot(normal) * dir_light.dot(normal));
 }
 
 void RayTracer::render(const Scene& scene, std::function<void(int)> progress_callback)
@@ -201,19 +268,19 @@ void RayTracer::render(const Scene& scene, std::function<void(int)> progress_cal
 				// Hit position
 				Vec3 pos = ray.at(t);
 
+				// View direction
+				Vec3 dir_view = ray.dir * -1;
+
 				// Surface color at hit point (to compute)
 				Color c_sample(0);
 
 				// Direct lighting
-				c_sample += direct_lighting(surface, scene, pos, normal);
+				c_sample += direct_lighting(surface, scene, pos, normal, dir_view);
 
 				// Indirect lighting
-				c_sample += indirect_lighting(surface, scene, pos, normal, max_bounce);
+				c_sample += indirect_lighting(surface, scene, pos, normal, dir_view, max_bounce);
 
 				// Add sample contribution
-				c_sample.x = std::min(c_sample.x, 1.f);
-				c_sample.y = std::min(c_sample.y, 1.f);
-				c_sample.z = std::min(c_sample.z, 1.f);
 				c_out += c_sample / static_cast<float>(pixel_sampling);
 			}
 
