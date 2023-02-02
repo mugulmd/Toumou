@@ -2,6 +2,8 @@
 #include <toumou/constants.hpp>
 
 #include <limits>
+#include <cmath>
+#include <algorithm>
 
 
 namespace toumou {
@@ -35,6 +37,37 @@ void DirectionalLight::sample(const Vec3& pos, Vec3& dir, float& dist, float& in
 {
 	dir = direction;
 	dist = std::numeric_limits<float>::max();
+	intensity = brightness;
+}
+
+EnvironmentLight::EnvironmentLight(const Color& _color, float _brightness) :
+	color(_color), brightness(_brightness)
+{
+}
+
+void EnvironmentLight::sample(const Vec3& dir, Color& c_sample, float& intensity) const
+{
+	c_sample = color;
+	intensity = brightness;
+}
+
+PanoramaLight::PanoramaLight(const Image<Color>& _image, float _brightness) :
+	EnvironmentLight(Color(0), _brightness),
+	image(_image)
+{
+}
+
+void PanoramaLight::sample(const Vec3& dir, Color& c_sample, float& intensity) const
+{
+	// Equirectangular projection
+	const float theta = std::acos(dir.z / dir.length());
+	const float sgn = dir.y < 0 ? -1.f : 1.f;
+	const float phi = sgn * std::acos(dir.x / std::sqrt(dir.x * dir.x + dir.y * dir.y));
+	const float x = ((phi / 3.14f) + 1.f) * .5f * static_cast<float>(image.width());
+	const float y = (1.f - (theta / 3.14f)) * static_cast<float>(image.height());
+	const int i = std::clamp(static_cast<int>(y), 0, image.height() - 1);
+	const int j = std::clamp(static_cast<int>(x), 0, image.width() - 1);
+	c_sample = image.at(i, j);
 	intensity = brightness;
 }
 

@@ -2,6 +2,7 @@
 
 #include <toumou/color.hpp>
 #include <toumou/geometry.hpp>
+#include <toumou/image.hpp>
 
 
 namespace toumou {
@@ -69,6 +70,48 @@ public:
 	Vec3 direction;
 
 	void sample(const Vec3& pos, Vec3& dir, float& dist, float& intensity) const override;
+
+};
+
+/**
+ * @brief Environment light source model.
+ */
+class EnvironmentLight {
+public:
+
+	/**
+	 * @brief TODO
+	 */
+	EnvironmentLight(const Color& _color, float _brightness);
+
+	/// TODO
+	Color color;
+
+	/// TODO
+	float brightness;
+
+	/**
+	 * @brief TODO
+	 */
+	virtual void sample(const Vec3& dir, Color& c_sample, float& intensity) const;
+
+};
+
+/**
+ * @brief TODO
+ */
+class PanoramaLight : public EnvironmentLight {
+public:
+
+	/**
+	 * @brief TODO
+	 */
+	PanoramaLight(const Image<Color>& _image, float _brightness);
+
+	/// TODO
+	Image<Color> image;
+
+	void sample(const Vec3& dir, Color& c_sample, float& intensity) const override;
 
 };
 
