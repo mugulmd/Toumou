@@ -45,6 +45,9 @@ public:
 	/// Retrieve the underlying data as a linear array.
 	const T* data() const;
 
+	/// Retrieve the underlying data as a linear array.
+	T* data();
+
 private:
 
 	/// Pixel grid dimensions.

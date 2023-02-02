@@ -1,6 +1,8 @@
 #pragma once
 
 #include <toumou/rendering.hpp>
+#include <toumou/image.hpp>
+#include <toumou/color.hpp>
 
 #include <string>
 
@@ -13,5 +15,10 @@ namespace toumou {
  * @param[in] path Filepath to save the render passes on disk (must have the .exr extension).
  */
 void write_EXR(const RayTracer& rt, const std::string& path);
+
+/**
+ * @brief TODO
+ */
+Image<Color> read_EXR(const std::string& path);
 
 }

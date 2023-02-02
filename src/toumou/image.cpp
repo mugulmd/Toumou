@@ -46,6 +46,12 @@ const T* Image<T>::data() const
 	return m_data.data();
 }
 
+template<typename T>
+T* Image<T>::data()
+{
+	return m_data.data();
+}
+
 template class Image<Color>;
 template class Image<Vec3>;
 template class Image<float>;
