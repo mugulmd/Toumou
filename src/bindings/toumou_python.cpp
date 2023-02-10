@@ -68,6 +68,13 @@ PYBIND11_MODULE(toumou, m)
 		.def("move_to", &Camera::move_to)
 		.def("rotate_to", &Camera::rotate_to);
 
+	// Image
+
+	py::class_<Image<Color>>(m, "Image")
+		.def(py::init<int, int>())
+		.def("at", &Image<Color>::at)
+		.def("set", &Image<Color>::set);
+
 	// Light
 
 	py::class_<Light, std::shared_ptr<Light>>(m, "Light")
@@ -79,6 +86,12 @@ PYBIND11_MODULE(toumou, m)
 
 	py::class_<DirectionalLight, std::shared_ptr<DirectionalLight>, Light>(m, "DirectionalLight")
 		.def(PYTMKS(DirectionalLight, const Color&, float, const Vec3&));
+
+	py::class_<EnvironmentLight, std::shared_ptr<EnvironmentLight>>(m, "EnvironmentLight")
+		.def(PYTMKS(EnvironmentLight, const Color&, float));
+
+	py::class_<PanoramaLight, std::shared_ptr<PanoramaLight>, EnvironmentLight>(m, "PanoramaLight")
+		.def(PYTMKS(PanoramaLight, const Image<Color>&, float));
 
 	// Field
 
@@ -160,19 +173,25 @@ PYBIND11_MODULE(toumou, m)
 		.def(py::init<>())
 		.def("set_camera", &Scene::set_camera)
 		.def("add_light", &Scene::add_light)
-		.def("add_surface", &Scene::add_surface);
-
-	// Image
+		.def("add_surface", &Scene::add_surface)
+		.def("set_env_light", &Scene::set_env_light);
 
 	// Rendering
 
 	py::class_<RayTracer>(m, "RayTracer")
-		.def(py::init<int, int, int, int, int>())
+		.def(py::init<int, int>())
+		.def_readwrite("pixel_sampling", &RayTracer::pixel_sampling)
+		.def_readwrite("max_bounce", &RayTracer::max_bounce)
+		.def_readwrite("rays_per_bounce", &RayTracer::rays_per_bounce)
+		.def_readwrite("env_sampling", &RayTracer::env_sampling)
 		.def("render", &RayTracer::render);
 
 	// IO
 
 	m.def("write_EXR", &write_EXR, 
 		py::arg("layers"), 
+		py::arg("path"));
+
+	m.def("read_EXR", &read_EXR,
 		py::arg("path"));
 }

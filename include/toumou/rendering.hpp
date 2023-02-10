@@ -20,13 +20,16 @@ class RayTracer {
 public:
 	
 	/// Number of rays per pixel.
-	int pixel_sampling;
+	int pixel_sampling = 16;
 
 	/// Maximum number of bounces for each light path.
-	int max_bounce;
+	int max_bounce = 4;
 
 	/// Number of rays emitted at each bounce.
-	int rays_per_bounce;
+	int rays_per_bounce = 16;
+
+	/// TODO
+	int env_sampling = 16;
 
 	/// Color pass.
 	Image<Color> image;
@@ -44,11 +47,8 @@ public:
 	 * @brief Create a ray tracer object for the given output dimensions.
 	 * @param[in] w Output image width.
 	 * @param[in] h Output image height.
-	 * @param[in] sampling Pixel sampling.
-	 * @param[in] bounce Maximum number of bounces.
-	 * @param[in] split Number of rays per bounce.
 	 */
-	RayTracer(int w, int h, int sampling = 16, int bounce = 4, int split = 16);
+	RayTracer(int w, int h);
 
 	/**
 	 * @brief Ray trace a given 3D scene.

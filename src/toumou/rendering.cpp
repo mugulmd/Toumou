@@ -8,10 +8,9 @@
 
 namespace toumou {
 
-RayTracer::RayTracer(int w, int h, int sampling, int bounce, int split) :
+RayTracer::RayTracer(int w, int h) :
 	image(w, h), normal_map(w, h), depth_map(w, h), index_map(w, h),
-pixel_sampling(sampling), max_bounce(bounce), rays_per_bounce(split),
-m_dis(0.f, 1.f)
+	m_dis(0.f, 1.f)
 {
 	std::random_device rd;
 	m_gen = std::mt19937(rd());
@@ -97,6 +96,69 @@ Color RayTracer::direct_lighting(std::shared_ptr<Surface> surface, const Scene& 
 		float specular = brdf(surface->material, dir_light, dir_view, normal);
 		c_out += light->color * (specular * intensity);
 	}
+
+	// Environment lighting
+	auto env_light = scene.env_light();
+	if (!env_light) {
+		return c_out;
+	}
+
+	Color c_env(0);
+
+	// Diffuse
+	for (int i = 0; i < env_sampling; ++i) {
+
+		// Generate ray in random direction
+		float r1 = m_dis(m_gen);
+		float theta = std::acos(1 - r1);
+		float r2 = m_dis(m_gen);
+		float phi = r2 * 6.18f;
+		Ray ray = cast(pos, normal, theta, phi);
+
+		// Check for surface intersection
+		float t_hit = 0.f;
+		Vec3 n_hit;
+		auto surf_hit = hit(ray, scene, t_hit, n_hit);
+		if (surf_hit) {
+			continue;
+		}
+
+		Color c_sample(0);
+		float intensity;
+		env_light->sample(ray.dir, c_sample, intensity);
+
+		float diffuse = std::max(0.f, normal.dot(ray.dir)) * (surface->material).albedo / 3.14f;
+		c_env += (surface->material).color_at(pos) * (diffuse * intensity) / static_cast<float>(env_sampling);
+	}
+
+	// Specular
+	for (int i = 0; i < env_sampling; ++i) {
+
+		// Generate ray in random direction using GGX PDF
+		float r1 = m_dis(m_gen);
+		float theta = std::atan(surface->material.roughness * std::sqrt(r1 / (1.f - r1)));
+		float r2 = m_dis(m_gen);
+		float phi = r2 * 6.18f;
+		Vec3 dir_reflected = 2.f * dir_view.dot(normal) * normal - dir_view;
+		Ray ray = cast(pos, dir_reflected, theta, phi);
+
+		// Check for surface intersection
+		float t_hit = 0.f;
+		Vec3 n_hit;
+		auto surf_hit = hit(ray, scene, t_hit, n_hit);
+		if (surf_hit) {
+			continue;
+		}
+
+		Color c_sample(0);
+		float intensity;
+		env_light->sample(ray.dir, c_sample, intensity);
+
+		float specular = brdf(surface->material, ray.dir, dir_view, normal);
+		c_env += c_sample * (specular * intensity) / static_cast<float>(env_sampling);
+	}
+
+	c_out += c_env;
 
 	return c_out;
 }

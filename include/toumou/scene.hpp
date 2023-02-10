@@ -21,11 +21,15 @@ public:
 
 	void add_surface(std::shared_ptr<Surface> surface);
 
+	void set_env_light(std::shared_ptr<EnvironmentLight> light);
+
 	std::shared_ptr<Camera> camera() const;
 
 	const std::vector<std::shared_ptr<Light>>& lights() const;
 
 	const std::vector<std::shared_ptr<Surface>>& surfaces() const;
+
+	std::shared_ptr<EnvironmentLight> env_light() const;
 
 private:
 
@@ -34,6 +38,8 @@ private:
 	std::vector<std::shared_ptr<Light>> m_lights;
 
 	std::vector<std::shared_ptr<Surface>> m_surfaces;
+
+	std::shared_ptr<EnvironmentLight> m_env_light;
 
 };
 
