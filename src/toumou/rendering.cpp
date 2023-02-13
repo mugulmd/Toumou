@@ -79,6 +79,11 @@ Color RayTracer::direct_lighting(std::shared_ptr<Surface> surface, const Scene& 
 		float intensity = 0.f;
 		light->sample(pos, dir_light, dist_light, intensity);
 
+		// Check if light direction belongs to local surface hemisphere
+		if (normal.dot(dir_light) < 0) {
+			continue;
+		}
+
 		// Check if light source is obstructed
 		Ray r_light(pos, dir_light);
 		float t_obstruct = 0.f;
@@ -89,7 +94,7 @@ Color RayTracer::direct_lighting(std::shared_ptr<Surface> surface, const Scene& 
 		}
 
 		// Diffuse
-		float diffuse = std::max(0.f, normal.dot(dir_light)) * (surface->material).albedo / 3.14f;
+		float diffuse = normal.dot(dir_light) * (surface->material).albedo / 3.14f;
 		c_out += (surface->material).color_at(pos) * (diffuse * intensity);
 
 		// Specular
@@ -115,6 +120,11 @@ Color RayTracer::direct_lighting(std::shared_ptr<Surface> surface, const Scene& 
 		float phi = r2 * 6.18f;
 		Ray ray = cast(pos, normal, theta, phi);
 
+		// Check if light direction belongs to local surface hemisphere
+		if (normal.dot(ray.dir) < 0) {
+			continue;
+		}
+
 		// Check for surface intersection
 		float t_hit = 0.f;
 		Vec3 n_hit;
@@ -127,7 +137,7 @@ Color RayTracer::direct_lighting(std::shared_ptr<Surface> surface, const Scene& 
 		float intensity;
 		env_light->sample(ray.dir, c_sample, intensity);
 
-		float diffuse = std::max(0.f, normal.dot(ray.dir)) * (surface->material).albedo / 3.14f;
+		float diffuse = normal.dot(ray.dir) * (surface->material).albedo / 3.14f;
 		c_env += (surface->material).color_at(pos) * (diffuse * intensity) / static_cast<float>(env_sampling);
 	}
 
@@ -141,6 +151,11 @@ Color RayTracer::direct_lighting(std::shared_ptr<Surface> surface, const Scene& 
 		float phi = r2 * 6.18f;
 		Vec3 dir_reflected = 2.f * dir_view.dot(normal) * normal - dir_view;
 		Ray ray = cast(pos, dir_reflected, theta, phi);
+
+		// Check if light direction belongs to local surface hemisphere
+		if (normal.dot(ray.dir) < 0) {
+			continue;
+		}
 
 		// Check for surface intersection
 		float t_hit = 0.f;
@@ -182,6 +197,11 @@ Color RayTracer::indirect_lighting(std::shared_ptr<Surface> surface, const Scene
 		float phi = r2 * 6.18f;
 		Ray ray_bounce = cast(pos, normal, theta, phi);
 
+		// Check if light direction belongs to local surface hemisphere
+		if (normal.dot(ray_bounce.dir) < 0) {
+			continue;
+		}
+
 		// Find first surface hit
 		float t_hit = 0.f;
 		Vec3 n_hit;
@@ -200,7 +220,7 @@ Color RayTracer::indirect_lighting(std::shared_ptr<Surface> surface, const Scene
 		Color c_indirect = indirect_lighting(surf_hit, scene, p_hit, n_hit, dir_view_hit, n_bounce - 1);
 
 		// Diffuse
-		float diffuse = std::max(0.f, normal.dot(ray_bounce.dir)) * (surface->material).albedo / 3.14f;
+		float diffuse = normal.dot(ray_bounce.dir) * (surface->material).albedo / 3.14f;
 		float intensity = (c_direct + c_indirect).dot(Vec3(1)) / 6.f;
 		c_out += (surface->material).color_at(pos) * intensity * diffuse / static_cast<float>(rays_per_bounce);
 	}
@@ -214,6 +234,11 @@ Color RayTracer::indirect_lighting(std::shared_ptr<Surface> surface, const Scene
 		float phi = r2 * 6.18f;
 		Vec3 dir_reflected = 2.f * dir_view.dot(normal)* normal - dir_view;
 		Ray ray_bounce = cast(pos, dir_reflected, theta, phi);
+
+		// Check if light direction belongs to local surface hemisphere
+		if (normal.dot(ray_bounce.dir) < 0) {
+			continue;
+		}
 
 		// Find first surface hit
 		float t_hit = 0.f;
