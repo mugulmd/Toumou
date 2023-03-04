@@ -4,6 +4,7 @@
 #include <spdlog/spdlog.h>
 
 #include <chrono>
+#include <limits>
 
 
 namespace toumou {
@@ -39,6 +40,7 @@ Ray RayTracer::cast(const Vec3& pos, const Vec3& normal, float theta, float phi)
 std::shared_ptr<Surface> RayTracer::hit(const Ray& ray, const Scene& scene, float& t, Vec3& normal) const
 {
 	std::shared_ptr<Surface> surface = nullptr;
+	float t_min = std::numeric_limits<float>::max();
 
 	// Go through all surfaces
 	for (const auto& s : scene.surfaces()) {
@@ -56,12 +58,14 @@ std::shared_ptr<Surface> RayTracer::hit(const Ray& ray, const Scene& scene, floa
 		}
 		
 		// Update closest hit
-		if (!surface || (surface && t_local < t)) {
+		if (!surface || (surface && t_local < t_min)) {
 			surface = s;
-			t = t_local;
+			t_min = t_local;
 			normal = n_local;
 		}
 	}
+
+	t = t_min;
 
 	return surface;
 }
@@ -94,11 +98,11 @@ Color RayTracer::direct_lighting(std::shared_ptr<Surface> surface, const Scene& 
 		}
 
 		// Diffuse
-		float diffuse = normal.dot(dir_light) * (surface->material).albedo / 3.14f;
+		float diffuse = normal.dot(dir_light) * (surface->material).albedo / k_pi;
 		c_out += (surface->material).color_at(pos) * (diffuse * intensity);
 
 		// Specular
-		float specular = brdf(surface->material, dir_light, dir_view, normal);
+		float specular = brdf(surface->material, dir_light, dir_view, normal) * (1.f - (surface->material).albedo);
 		c_out += light->color * (specular * intensity);
 	}
 
@@ -117,7 +121,7 @@ Color RayTracer::direct_lighting(std::shared_ptr<Surface> surface, const Scene& 
 		float r1 = m_dis(m_gen);
 		float theta = std::acos(1 - r1);
 		float r2 = m_dis(m_gen);
-		float phi = r2 * 6.18f;
+		float phi = r2 * k_pi * 2.f;
 		Ray ray = cast(pos, normal, theta, phi);
 
 		// Check if light direction belongs to local surface hemisphere
@@ -137,7 +141,7 @@ Color RayTracer::direct_lighting(std::shared_ptr<Surface> surface, const Scene& 
 		float intensity;
 		env_light->sample(ray.dir, c_sample, intensity);
 
-		float diffuse = normal.dot(ray.dir) * (surface->material).albedo / 3.14f;
+		float diffuse = normal.dot(ray.dir) * (surface->material).albedo / k_pi;
 		c_env += (surface->material).color_at(pos) * (diffuse * intensity) / static_cast<float>(env_sampling);
 	}
 
@@ -148,7 +152,7 @@ Color RayTracer::direct_lighting(std::shared_ptr<Surface> surface, const Scene& 
 		float r1 = m_dis(m_gen);
 		float theta = std::atan(surface->material.roughness * std::sqrt(r1 / (1.f - r1)));
 		float r2 = m_dis(m_gen);
-		float phi = r2 * 6.18f;
+		float phi = r2 * k_pi * 2.f;
 		Vec3 dir_reflected = 2.f * dir_view.dot(normal) * normal - dir_view;
 		Ray ray = cast(pos, dir_reflected, theta, phi);
 
@@ -169,7 +173,7 @@ Color RayTracer::direct_lighting(std::shared_ptr<Surface> surface, const Scene& 
 		float intensity;
 		env_light->sample(ray.dir, c_sample, intensity);
 
-		float specular = brdf(surface->material, ray.dir, dir_view, normal);
+		float specular = brdf(surface->material, ray.dir, dir_view, normal) * (1.f - (surface->material).albedo);
 		c_env += c_sample * (specular * intensity) / static_cast<float>(env_sampling);
 	}
 
@@ -194,7 +198,7 @@ Color RayTracer::indirect_lighting(std::shared_ptr<Surface> surface, const Scene
 		float r1 = m_dis(m_gen);
 		float theta = std::acos(1 - r1);
 		float r2 = m_dis(m_gen);
-		float phi = r2 * 6.18f;
+		float phi = r2 * k_pi * 2.f;
 		Ray ray_bounce = cast(pos, normal, theta, phi);
 
 		// Check if light direction belongs to local surface hemisphere
@@ -220,8 +224,8 @@ Color RayTracer::indirect_lighting(std::shared_ptr<Surface> surface, const Scene
 		Color c_indirect = indirect_lighting(surf_hit, scene, p_hit, n_hit, dir_view_hit, n_bounce - 1);
 
 		// Diffuse
-		float diffuse = normal.dot(ray_bounce.dir) * (surface->material).albedo / 3.14f;
-		float intensity = (c_direct + c_indirect).dot(Vec3(1)) / 6.f;
+		float diffuse = normal.dot(ray_bounce.dir) * (surface->material).albedo / k_pi;
+		float intensity = (c_direct + c_indirect).dot(Vec3(1)) / 3.f; // TODO: use luma formula instead
 		c_out += (surface->material).color_at(pos) * intensity * diffuse / static_cast<float>(rays_per_bounce);
 	}
 
@@ -231,7 +235,7 @@ Color RayTracer::indirect_lighting(std::shared_ptr<Surface> surface, const Scene
 		float r1 = m_dis(m_gen);
 		float theta = std::atan(surface->material.roughness * std::sqrt(r1 / (1.f - r1)));
 		float r2 = m_dis(m_gen);
-		float phi = r2 * 6.18f;
+		float phi = r2 * k_pi * 2.f;
 		Vec3 dir_reflected = 2.f * dir_view.dot(normal)* normal - dir_view;
 		Ray ray_bounce = cast(pos, dir_reflected, theta, phi);
 
@@ -258,7 +262,7 @@ Color RayTracer::indirect_lighting(std::shared_ptr<Surface> surface, const Scene
 		Color c_indirect = indirect_lighting(surf_hit, scene, p_hit, n_hit, dir_view_hit, n_bounce - 1);
 
 		// Specular
-		float specular = brdf(surface->material, ray_bounce.dir, dir_view, normal);
+		float specular = brdf(surface->material, ray_bounce.dir, dir_view, normal) * (1.f - (surface->material).albedo);
 		c_out += (c_direct + c_indirect) * specular / static_cast<float>(rays_per_bounce);
 	}
 
@@ -278,7 +282,7 @@ float RayTracer::brdf(const Material& mat, const Vec3& dir_light, const Vec3& di
 	// GGX normal distribution function
 	const float a2 = mat.roughness * mat.roughness;
 	const float d = (a2 - 1.f) * hn * hn + 1.f;
-	const float ggx = a2 / (d * d * 3.14f);
+	const float ggx = a2 / (d * d * k_pi);
 
 	// Fresnel factor - Schlick's approximation
 	const float r0_sqrt = (1.f - mat.ior) / (1.f + mat.ior);

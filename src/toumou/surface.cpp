@@ -62,10 +62,13 @@ bool Sphere::hit(const Ray& ray, float& t, Vec3& n) const
 		return false;
 	}
 
-	t = (-b - std::sqrt(delta)) * .5f;
-	if (t < 0) {
+	float t1 = (-b - std::sqrt(delta)) * .5f;
+	float t2 = (-b + std::sqrt(delta)) * .5f;
+	if (t1 < eps_ray_sep && t2 < eps_ray_sep) {
 		return false;
 	}
+
+	t = t1 > eps_ray_sep ? t1 : t2;
 
 	n = (ray.at(t) - center).normalized();
 	return true;
@@ -86,7 +89,7 @@ bool Plane::hit(const Ray& ray, float& t, Vec3& n) const
 	}
 
 	t = alpha / beta;
-	if (t < 0) {
+	if (t < eps_ray_sep) {
 		return false;
 	}
 
@@ -113,10 +116,11 @@ bool Tube::hit(const Ray& ray, float& t, Vec3& n) const
 
 	float t1 = (-b - std::sqrt(delta)) / (2.f * a);
 	float t2 = (-b + std::sqrt(delta)) / (2.f * a);
-	t = std::min(t1, t2);
-	if (t < 0) {
+	if (t1 < eps_ray_sep && t2 < eps_ray_sep) {
 		return false;
 	}
+
+	t = t1 > eps_ray_sep ? t1 : t2;
 
 	Vec3 p = ray.at(t);
 	Vec3 q = origin + direction * direction.dot(p - origin);

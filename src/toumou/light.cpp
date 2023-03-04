@@ -60,11 +60,11 @@ PanoramaLight::PanoramaLight(const Image<Color>& _image, float _brightness) :
 void PanoramaLight::sample(const Vec3& dir, Color& c_sample, float& intensity) const
 {
 	// Equirectangular projection
-	const float theta = std::acos(dir.z / dir.length());
-	const float sgn = dir.y < 0 ? -1.f : 1.f;
-	const float phi = sgn * std::acos(dir.x / std::sqrt(dir.x * dir.x + dir.y * dir.y));
-	const float x = ((phi / 3.14f) + 1.f) * .5f * static_cast<float>(image.width());
-	const float y = (1.f - (theta / 3.14f)) * static_cast<float>(image.height());
+	const float theta = std::acos(dir.y / dir.length());
+	const float sgn = dir.z < 0 ? -1.f : 1.f;
+	const float phi = sgn * std::acos(dir.x / std::sqrt(dir.x * dir.x + dir.z * dir.z));
+	const float x = ((phi / k_pi) + 1.f) * .5f * static_cast<float>(image.width());
+	const float y = (theta / k_pi) * static_cast<float>(image.height());
 	const int i = std::clamp(static_cast<int>(y), 0, image.height() - 1);
 	const int j = std::clamp(static_cast<int>(x), 0, image.width() - 1);
 	c_sample = image.at(i, j);
