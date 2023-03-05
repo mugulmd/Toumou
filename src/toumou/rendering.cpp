@@ -282,7 +282,7 @@ float RayTracer::brdf(const Material& mat, const Vec3& dir_light, const Vec3& di
 	// GGX normal distribution function
 	const float a2 = mat.roughness * mat.roughness;
 	const float d = (a2 - 1.f) * hn * hn + 1.f;
-	const float ggx = a2 / (d * d * k_pi);
+	const float ggx = a2 / std::max(d * d * k_pi, eps_div_by_zero);
 
 	// Fresnel factor - Schlick's approximation
 	const float r0_sqrt = (1.f - mat.ior) / (1.f + mat.ior);
@@ -290,12 +290,10 @@ float RayTracer::brdf(const Material& mat, const Vec3& dir_light, const Vec3& di
 	const float fresnel = r0 + (1.f - r0) * std::pow(1.f - vh, 5.f);
 
 	// Geometric attenuation
-	const float shadowing_view = 2.f * hn * vn / vh;
-	const float shadowing_light = 2.f * hn * ln / vh;
-	const float shadowing = std::min(1.f, std::min(shadowing_view, shadowing_light));
+	float shadowing = 2.f * vn * ln / std::max(ln * std::sqrt(a2 + (1.f - a2) * vn * vn) + vn * std::sqrt(a2 + (1.f - a2) * ln * ln), eps_div_by_zero);
 
 	// Cook-Torrance model
-	return (ggx * fresnel * shadowing) / (4.f * dir_view.dot(normal) * dir_light.dot(normal));
+	return (ggx * fresnel * shadowing) / std::max(4.f * vn * ln, eps_div_by_zero);
 }
 
 void RayTracer::render(const Scene& scene, std::function<void(int)> progress_callback)
