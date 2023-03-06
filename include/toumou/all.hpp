@@ -3,6 +3,7 @@
 #include <toumou/camera.hpp>
 #include <toumou/color.hpp>
 #include <toumou/constants.hpp>
+#include <toumou/denoising.hpp>
 #include <toumou/geometry.hpp>
 #include <toumou/image.hpp>
 #include <toumou/io.hpp>

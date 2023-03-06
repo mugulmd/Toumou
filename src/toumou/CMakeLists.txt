@@ -6,6 +6,8 @@ SHARED
     ${TOUMOU_INCLUDE_DIR}/toumou/color.hpp
     color.cpp
     ${TOUMOU_INCLUDE_DIR}/toumou/constants.hpp
+    ${TOUMOU_INCLUDE_DIR}/toumou/denoising.hpp
+    denoising.cpp
     ${TOUMOU_INCLUDE_DIR}/toumou/field.hpp
     field.cpp
     ${TOUMOU_INCLUDE_DIR}/toumou/geometry.hpp
